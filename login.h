@@ -18,6 +18,9 @@ public:
     bool readIniFile();
     void readSetting();
     void saveSetting();
+    void readSettings();  // 读取设置,从注册表
+    void writeSettings(); // 写入设置，从注册表
+    void autoLogin();
     QString getUserId(){
         return userId;
     }
@@ -34,8 +37,6 @@ private:
     bool saved;
     QString userId, userName, passWord;
     QSettings *setting;
-    void readSettings();  // 读取设置,从注册表
-    void writeSettings(); // 写入设置，从注册表
 };
 
 #endif // LOGIN_H

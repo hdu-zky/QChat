@@ -99,5 +99,7 @@ void MainWindow::on_refresh_clicked()
 // 实现退出重新登录
 void MainWindow::on_quit_clicked()
 {
+    QSettings settings("WWB-Qt","QChat"); //注册表键组
+    settings.setValue("autod", 0); // 关闭自动登陆
     qApp->exit(2);
 }

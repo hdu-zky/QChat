@@ -10,5 +10,6 @@
         <file alias="tc">images/textcolor.png</file>
         <file alias="ti">images/textitalic.png</file>
         <file alias="tu">images/textunder.png</file>
+        <file alias="login">images/自动登陆.gif</file>
     </qresource>
 </RCC>

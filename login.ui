@@ -22,6 +22,10 @@
   <property name="windowTitle">
    <string>登录</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="images.qrc">
+    <normaloff>:/images/other</normaloff>:/images/other</iconset>
+  </property>
   <property name="statusTip">
    <string/>
   </property>
@@ -207,6 +211,16 @@
     </item>
    </layout>
   </widget>
+  <widget class="QComboBox" name="comboBox">
+   <property name="geometry">
+    <rect>
+     <x>190</x>
+     <y>270</y>
+     <width>69</width>
+     <height>22</height>
+    </rect>
+   </property>
+  </widget>
  </widget>
  <tabstops>
   <tabstop>UserName</tabstop>
@@ -214,6 +228,8 @@
   <tabstop>Login_Button</tabstop>
   <tabstop>Register_Button</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="images.qrc"/>
+ </resources>
  <connections/>
 </ui>

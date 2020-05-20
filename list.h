@@ -15,6 +15,9 @@ public:
     explicit List(QWidget *parent = 0);
     ~List();
 
+private slots:
+    void on_cancel_clicked();
+
 private:
     Ui::List *ui;
 };

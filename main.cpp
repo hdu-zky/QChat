@@ -15,6 +15,7 @@ int main(int argc, char *argv[])
     gstrFilePath = QCoreApplication::applicationFilePath();
     MainWindow w;
     login lg;
+//    lg.readSettings();
     if(lg.exec() == QDialog::Accepted){
         w.setWindowTitle(QString("欢迎你！%1").arg(lg.getUserName()));
         w.setUserId(lg.getUserId());
