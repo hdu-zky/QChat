@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/images">
+        <file alias="hh">images/1.gif</file>
+        <file alias="me">images/me.png</file>
+        <file alias="other">images/robot.png</file>
+        <file alias="del">images/Bin (empty).png</file>
+        <file alias="fo">images/fileopen.png</file>
+        <file alias="fs">images/Floppy.png</file>
+        <file alias="tb">images/textbold.png</file>
+        <file alias="tc">images/textcolor.png</file>
+        <file alias="ti">images/textitalic.png</file>
+        <file alias="tu">images/textunder.png</file>
+    </qresource>
+</RCC>
