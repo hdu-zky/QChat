@@ -7,7 +7,7 @@
 #include <QStandardItemModel>
 #include<QPoint>
 
-class DialogWindow;
+class chat;
 class QListWidget;
 class List;
 namespace Ui {
@@ -43,7 +43,7 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    DialogWindow *dw;
+    chat *dw;
     List *list;
     QString userId;
     int rawCount;

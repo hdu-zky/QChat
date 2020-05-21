@@ -227,6 +227,16 @@
    </property>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>input_uid</tabstop>
+  <tabstop>input_userName</tabstop>
+  <tabstop>input_passWord</tabstop>
+  <tabstop>input_repwd</tabstop>
+  <tabstop>input_email</tabstop>
+  <tabstop>input_tel</tabstop>
+  <tabstop>btn_Register</tabstop>
+  <tabstop>btn_Quit</tabstop>
+ </tabstops>
  <resources>
   <include location="images.qrc"/>
  </resources>

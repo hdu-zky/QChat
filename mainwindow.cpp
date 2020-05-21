@@ -91,14 +91,16 @@ void MainWindow::on_addFriendGroup_clicked()
 
 void MainWindow::on_openDialogWindow_clicked()
 {
-    dw = new DialogWindow(this);
+    dw = new chat(this);
     if(ui->tableWidget->selectedItems().isEmpty()){
         QMessageBox::warning(0,QString("警告"),QString("你没有选择群聊或好友！"),QMessageBox::Ok);
         return;
     }else{
         QList<QTableWidgetItem*> items = ui->tableWidget->selectedItems();
-        QString name = items.at(2)->text();
-        dw->setWindowTitle(name);
+        QString uid = items.at(1)->text();
+        QString name = items.at(2)->text(), title = name + QString("(%1)").arg(uid);
+        dw->setUId(uid); dw->setUserName(name); //将选中的用户名和id复制到chat中
+        dw->setWindowTitle(title);
         dw->show();
     }
 }

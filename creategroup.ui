@@ -158,6 +158,14 @@
    </property>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>input_acc</tabstop>
+  <tabstop>input_name</tabstop>
+  <tabstop>input_instruct</tabstop>
+  <tabstop>input_img</tabstop>
+  <tabstop>btn_create</tabstop>
+  <tabstop>btn_Quit</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

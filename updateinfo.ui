@@ -156,6 +156,13 @@
    </property>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>input_userName</tabstop>
+  <tabstop>input_email</tabstop>
+  <tabstop>input_tel</tabstop>
+  <tabstop>btn_update</tabstop>
+  <tabstop>btn_Quit</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
