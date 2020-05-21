@@ -3,6 +3,7 @@
 #include <QApplication>
 #include <QTextCodec>
 #include <QProcess>
+#include <QDebug>
 
 QString gstrFilePath = "";
 void relogin(void);
@@ -17,8 +18,9 @@ int main(int argc, char *argv[])
     login lg;
 //    lg.readSettings();
     if(lg.exec() == QDialog::Accepted){
-        w.setWindowTitle(QString("欢迎你！%1").arg(lg.getUserName()));
+        w.setWindowTitle(QString("欢迎你！%1(%2)").arg(lg.getUserName()).arg(lg.getUserId()));
         w.setUserId(lg.getUserId());
+        qDebug()<<"\n main"<<endl;
         w.refresh();
         w.show();
         int nret = a.exec();

@@ -5,7 +5,7 @@
 #include "QString"       // Qt里的字符串类型
 #include "QMessageBox"   // 引入QMessageBox类，用于弹窗
 #include "register.h"
-#include "list.h"
+#include "autoLogin.h"
 #include <QDialog>
 #include <QFile>
 #include <QDebug>
@@ -18,20 +18,20 @@
 #include <QSettings>
 #include <QFileInfo>
 #include <QTimer>
+#include <QHostInfo>
+#include <QNetworkInterface>
 
 login::login(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::login)
 {
     ui->setupUi(this);
-//    Init();
+    this->setFixedSize(400,300);
 // //    QMovie *movie = new QMovie(this);
 // //    movie->setFileName(":/images/hh");
 // //    ui->lb_gif->setMovie(movie);
 // //    movie->start();
-//    saved = false;
 // //    setWindowFlags(Qt::SplashScreen);
-// //    ui->chkBox_Auto->setVisible(false);
     readSettings(); //读取存储的用户名和密码
 //    readIniFile();
 //    readSetting();
@@ -103,7 +103,7 @@ void login::readSettings(){
         ui->chkBox_Save->setChecked(true);
         if(autod){ // 自动登录
             ui->chkBox_Auto->setChecked(true);
-            autoLogin();
+            autoLg();
         }
     }else{ // 如果不自动保存密码,则不能自动登录
         ui->chkBox_Save->setChecked(false);
@@ -114,14 +114,16 @@ void login::readSettings(){
 void login::changeSaved(){
     saved = false;
 }
-void login::autoLogin(){
+void login::autoLg(){
 //    QMessageBox::information(this,tr("提示"),tr("正在自动登陆中......"), QMessageBox::Cancel);
 
-    List *lt = new List(this);
+    autoLogin *lt = new autoLogin(this);
     lt->show();
     QTimer::singleShot(2500, lt, SLOT(close()));  // 这里是一个3秒定时器， 且只执行一次。
-    on_Login_Button_clicked();
+    execQuery();
 //    lt->close();
+//    accept();
+//    qDebug()<<"autologin"<<endl;
 }
 
 // 保存用户名，密码等设置
@@ -140,7 +142,6 @@ void login::writeSettings()
 void login::on_Login_Button_clicked()
 {
     userId = ui->UserName->text();
-    QSqlQuery query(getDB());
     QString pWord = ui->Password->text();
     QString MD5;
     QByteArray pWd;
@@ -148,7 +149,7 @@ void login::on_Login_Button_clicked()
     pWord.append(pWd.toHex());
     pWd = QCryptographicHash::hash(pWord.toLatin1(), QCryptographicHash::Md5);
     MD5.append(pWd.toHex());
-//    qDebug()<<userId <<", "<< MD5<<endl;
+    qDebug()<<userId <<", "<< MD5<<endl;
     if(userId.length()==0 || pWord.length()==0){
         QMessageBox::warning(this, tr("error"), tr("input can't be blank"), QMessageBox::Ok);
         return;
@@ -156,8 +157,14 @@ void login::on_Login_Button_clicked()
     if(!saved){
         passWord = MD5;
     }
-    QString sql = QString("select userName from user where uid = '%1' and passWord = '%2'").arg(userId).arg(passWord);
+    execQuery();
+}
+void login::execQuery(){
+    QSqlQuery query(getDB());
+    QString sql = QString("select uid, userName from user where uid = '%1' and passWord = '%2'").arg(userId).arg(passWord);
     query.exec(sql);
+//    UId = query.value(0).toString();
+//    UName = query.value(1).toString();
     if(!query.seek(0)){
         QMessageBox::warning(this,tr("警告"),tr("登陆失败！"), QMessageBox::Ok);
         query.finish();
@@ -165,9 +172,12 @@ void login::on_Login_Button_clicked()
         getDB().close();
         return;
     }else{
-        userName = query.value(0).toString(); // 保存用户名字
+        userId = query.value(0).toString(); // 保存用户名字
+        userName = query.value(1).toString(); // 保存用户名字
         writeSettings();
-        qDebug()<<"login "<< userId<<userName<<endl;
+//        qDebug()<<"login "<< userId<<userName<<endl;
+        sql = QString("update user set ip = '%1' where uid = '%2'").arg(getIPV4()).arg(userId);
+        query.exec(sql);
         query.finish();
         query.clear();
         getDB().close();
@@ -177,12 +187,28 @@ void login::on_Login_Button_clicked()
     }
     return;
 }
+QString login::getIPV4(){
+    QString strIpAddress;
+    QList<QHostAddress> ipAddressesList = QNetworkInterface::allAddresses();
+    // 获取第一个本主机的IPv4地址
+    int nListSize = ipAddressesList.size();
+    for (int i = 0; i < nListSize; ++i)
+    {
+           if (ipAddressesList.at(i) != QHostAddress::LocalHost &&
+               ipAddressesList.at(i).toIPv4Address()) {
+               strIpAddress = ipAddressesList.at(i).toString();
+               break;
+           }
+     }
+    qDebug()<<strIpAddress<<endl;
+    return strIpAddress;
+}
 
 void login::on_Register_Button_clicked()
 {
     Register reg;
     login lg;
-    reg.setWindowTitle("register");
+
     // to do: hide the windows
     if(reg.exec() == QDialog::Accepted)
     {

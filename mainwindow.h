@@ -1,9 +1,11 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "user.h"
 #include <QMainWindow>
 #include <QTableWidgetItem>
 #include <QStandardItemModel>
+#include<QPoint>
 
 class DialogWindow;
 class QListWidget;
@@ -21,6 +23,7 @@ public:
     ~MainWindow();
     void setUserId(QString uid){
         userId = uid;
+        UId = uid;
     }
     QString getUserId(){
         return userId;
@@ -29,12 +32,14 @@ public:
         on_refresh_clicked();
     }
 private slots:
-    void on_pushButton_clicked();
     void on_addFriendGroup_clicked();
     void on_openDialogWindow_clicked();
     void on_refresh_clicked();
-
+    void updateInf();
+    void createGp();
     void on_quit_clicked();
+    void customMenupPop(QPoint);
+    void updateGpInf();
 
 private:
     Ui::MainWindow *ui;

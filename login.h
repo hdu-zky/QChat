@@ -20,7 +20,8 @@ public:
     void saveSetting();
     void readSettings();  // 读取设置,从注册表
     void writeSettings(); // 写入设置，从注册表
-    void autoLogin();
+    void autoLg();
+    QString getIPV4();
     QString getUserId(){
         return userId;
     }
@@ -37,6 +38,7 @@ private:
     bool saved;
     QString userId, userName, passWord;
     QSettings *setting;
+    void execQuery();
 };
 
 #endif // LOGIN_H

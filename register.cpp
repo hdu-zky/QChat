@@ -11,6 +11,7 @@ Register::Register(QWidget *parent) :
     ui(new Ui::Register)
 {
     ui->setupUi(this);
+    this->setFixedSize(400,372);
 //    setAttribute(Qt::WA_DeleteOnClose);
     setWindowFlags(windowFlags()&~Qt::WindowContextHelpButtonHint);
 }

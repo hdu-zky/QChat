@@ -1,4 +1,4 @@
-#include "dialogwindow.h"
+#include "chat.h"
 #include "ui_dialogwindow.h"
 #include <QListWidget>
 #include <QDateTime>
@@ -7,6 +7,7 @@ DialogWindow::DialogWindow(QWidget *parent) :
     ui(new Ui::DialogWindow)
 {
     ui->setupUi(this);
+    this->setFixedSize(573,545);
     ui->send->setEnabled(false);
     connect(ui->textEdit,SIGNAL(textChanged()),this,SLOT(enableSendBtn()));
     session = new QStandardItemModel(this);

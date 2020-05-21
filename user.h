@@ -4,6 +4,7 @@
 #include <QSqlDatabase>
 #include <QSqlQuery>
 
+extern QString UId, UName;
 extern QSqlDatabase getDB();
 //extern QSqlQuery query;
 

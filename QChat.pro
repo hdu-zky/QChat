@@ -28,25 +28,37 @@ SOURCES += \
         mainwindow.cpp \
     login.cpp \
     register.cpp \
-    dialogwindow.cpp \
-    list.cpp
+    autoLogin.cpp \
+    chat.cpp \
+    findgroup.cpp \
+    filetrans.cpp \
+    updateinfo.cpp \
+    creategroup.cpp
 
 HEADERS += \
         hosturl.h\
         mainwindow.h \
     login.h \
     register.h \
-    dialogwindow.h \
-    list.h \
     connecttosql.h \
-    user.h
+    user.h \
+    autoLogin.h \
+    chat.h \
+    findgroup.h \
+    filetrans.h \
+    updateinfo.h \
+    creategroup.h
 
 FORMS += \
         mainwindow.ui \
     login.ui \
     register.ui \
-    dialogwindow.ui \
-    list.ui
+    autologin.ui \
+    chat.ui \
+    findgroup.ui \
+    filetrans.ui \
+    updateinfo.ui \
+    creategroup.ui
 
 RESOURCES += \
     images.qrc
