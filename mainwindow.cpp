@@ -56,11 +56,12 @@ MainWindow::MainWindow(QWidget *parent) :
     setWindowFlags(windowFlags()&~Qt::WindowContextHelpButtonHint);
     ui->tableWidget->setContextMenuPolicy(Qt::CustomContextMenu); //开启右键菜单
     connect(ui->tableWidget, SIGNAL(customContextMenuRequested(QPoint)), SLOT(customMenupPop(QPoint)));
-    connect(ui->tableWidget, SIGNAL(clicked(QModelIndex)),SLOT(on_openDialogWindow_clicked()));
+//    connect(ui->tableWidget, SIGNAL(clicked(QModelIndex)),SLOT(on_openDialogWindow_clicked()));
     connect(ui->exit,SIGNAL(triggered(bool)),this,SLOT(close()));
     connect(ui->updateInfo,SIGNAL(triggered(bool)),this,SLOT(updateInf()));
     connect(ui->createGroup,SIGNAL(triggered(bool)),this,SLOT(createGp()));
     connect(ui->reSign,SIGNAL(triggered(bool)),this,SLOT(on_quit_clicked()));
+    dlgCount =0;
 }
 
 MainWindow::~MainWindow()
@@ -91,18 +92,35 @@ void MainWindow::on_addFriendGroup_clicked()
 
 void MainWindow::on_openDialogWindow_clicked()
 {
-    dw = new chat(this);
+    if(dlgCount == 0){
+        // 放到构造函数中，防止每次和一个新的好友聊天都创建一个新的对象
+        chatStack = new chatDlgStack(this);
+        dlgCount++;
+    }
     if(ui->tableWidget->selectedItems().isEmpty()){
         QMessageBox::warning(0,QString("警告"),QString("你没有选择群聊或好友！"),QMessageBox::Ok);
         return;
     }else{
         QList<QTableWidgetItem*> items = ui->tableWidget->selectedItems();
         QString uid = items.at(1)->text();
-        QString name = items.at(2)->text(), title = name + QString("(%1)").arg(uid);
-        dw->setUId(uid); dw->setUserName(name); //将选中的用户名和id复制到chat中
-        dw->setWindowTitle(title);
-        dw->show();
+        QString name = items.at(2)->text();
+        qDebug()<<"\non_openDialogWindow_clicked"<<uid<<name<<endl;
+        chatStack->addChatDlg(uid, name);
+        chatStack->show();
+        qDebug()<<"\nshow"<<endl;
     }
+//    dw = new chat(this);
+//    if(ui->tableWidget->selectedItems().isEmpty()){
+//        QMessageBox::warning(0,QString("警告"),QString("你没有选择群聊或好友！"),QMessageBox::Ok);
+//        return;
+//    }else{
+//        QList<QTableWidgetItem*> items = ui->tableWidget->selectedItems();
+//        QString uid = items.at(1)->text();
+//        QString name = items.at(2)->text(), title = name + QString("(%1)").arg(uid);
+//        dw->setUId(uid); dw->setUserName(name); //将选中的用户名和id复制到chat中
+//        dw->setWindowTitle(title);
+//        dw->show();
+//    }
 }
 
 void MainWindow::on_refresh_clicked()

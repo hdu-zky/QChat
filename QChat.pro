@@ -33,7 +33,10 @@ SOURCES += \
     findgroup.cpp \
     filetrans.cpp \
     updateinfo.cpp \
-    creategroup.cpp
+    creategroup.cpp \
+    filerecv.cpp \
+    chatdlg.cpp \
+    chatdlgstack.cpp
 
 HEADERS += \
         hosturl.h\
@@ -47,7 +50,10 @@ HEADERS += \
     findgroup.h \
     filetrans.h \
     updateinfo.h \
-    creategroup.h
+    creategroup.h \
+    filerecv.h \
+    chatdlg.h \
+    chatdlgstack.h
 
 FORMS += \
         mainwindow.ui \
@@ -58,7 +64,10 @@ FORMS += \
     findgroup.ui \
     filetrans.ui \
     updateinfo.ui \
-    creategroup.ui
+    creategroup.ui \
+    filerecv.ui \
+    chatdlg.ui \
+    chatdlgstack.ui
 
 RESOURCES += \
     images.qrc

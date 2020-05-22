@@ -1,5 +1,5 @@
-#include "chat.h"
-#include "ui_chat.h"
+#include "chatdlg.h"
+#include "ui_chatdlg.h"
 #include "user.h"
 #include "filetrans.h"
 
@@ -12,39 +12,35 @@
 #include <QFileDialog>
 #include <QTextStream>
 
-chat::chat(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::chat)
+chatDlg::chatDlg(QWidget *parent) :
+    QWidget(parent),
+    ui(new Ui::chatDlg)
 {
     ui->setupUi(this);
-    this->setFixedSize(573,545);
+    this->setFixedSize(580,550);
     ui->send->setEnabled(false);
     connect(ui->textEdit,SIGNAL(textChanged()),this,SLOT(enableSendBtn()));
-//    session = new QStandardItemModel(this);
-//    session->setHorizontalHeaderItem(0,new QStandardItem(QObject::tr("聊天记录")));
-//    // 自动延伸填满整个宽度
-//    ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-//    ui->tableView->verticalHeader()->hide();
-//    // 背景色交替
-//    ui->tableView->setAlternatingRowColors(true);
-//    ui->tableView->setStyleSheet("QTableView::item {alternate-background-color: #f3f4f5;}");
-//    // 设置选中行背景色
-//    ui->tableView->setStyleSheet("QTableView::item:selected {background-color: #F8F0DD;color: #3a3a3a;}");
-//    //设置不显示格子线
-//    ui->tableView->setShowGrid(false);
-//    ui->tableView->setModel(session);
     connect(ui->font,SIGNAL(currentFontChanged(QFont)),this,SLOT(on_font_currentFontChanged(QFont)));
     connect(ui->fontSize,SIGNAL(currentIndexChanged(QString)),this,SLOT(on_fontSize_currentIndexChanged(QString)));
     rawCount =0;
     setWindowFlags(windowFlags()&~Qt::WindowContextHelpButtonHint);
 }
 
-chat::~chat()
+chatDlg::~chatDlg()
 {
     delete ui;
 }
+void chatDlg::closeEvent(QCloseEvent *event){
+    emit closeSignal();
+    event->accept();
+}
 
-void chat::enableSendBtn(){
+void chatDlg::setUserInfo(QString uid, QString uname){
+    userId = uid;
+    userName = uname;
+    ui->checkInfo->setText(QString("%1(<u>%2<u>)").arg(uname).arg(uid));
+}
+void chatDlg::enableSendBtn(){
     if(!ui->textEdit->toPlainText().isEmpty()){
         ui->send->setEnabled(true);
     }else{
@@ -52,7 +48,7 @@ void chat::enableSendBtn(){
     }
 }
 
-void chat::on_send_clicked()
+void chatDlg::on_send_clicked()
 {
     QString word = ui->textEdit->toHtml();
     QString time = QDateTime::currentDateTime().toString(QString("  yyyy-MM-dd hh:mm:ss"));
@@ -73,35 +69,35 @@ void chat::on_send_clicked()
     ui->send->setEnabled(false);
 }
 
-void chat::on_close_clicked()
+void chatDlg::on_close_clicked()
 {
     this->close();
 }
-void chat::on_font_currentFontChanged(const QFont &f)
+void chatDlg::on_font_currentFontChanged(const QFont &f)
 {
     ui->textEdit->setCurrentFont(f);
     ui->textEdit->setFocus();
 }
 
-void chat::on_fontSize_currentIndexChanged(const QString &size)
+void chatDlg::on_fontSize_currentIndexChanged(const QString &size)
 {
     ui->textEdit->setFontPointSize(size.toDouble());
     ui->textEdit->setFocus();
 }
 
-void chat::on_textitalic_clicked(bool checked)
+void chatDlg::on_textitalic_clicked(bool checked)
 {
     ui->textEdit->setFontItalic(checked);
     ui->textEdit->setFocus();
 }
 
-void chat::on_textUnderline_clicked(bool checked)
+void chatDlg::on_textUnderline_clicked(bool checked)
 {
     ui->textEdit->setFontUnderline(checked);
     ui->textEdit->setFocus();
 }
 
-void chat::on_textcolor_clicked()
+void chatDlg::on_textcolor_clicked()
 {
     color = QColorDialog::getColor(color,this);
     if(color.isValid())
@@ -111,7 +107,7 @@ void chat::on_textcolor_clicked()
     }
 }
 
-void chat::on_textbold_clicked(bool checked)
+void chatDlg::on_textbold_clicked(bool checked)
 {
     if(checked)
         ui->textEdit->setFontWeight(QFont::Bold);
@@ -120,14 +116,14 @@ void chat::on_textbold_clicked(bool checked)
     ui->textEdit->setFocus();
 }
 // 打开文件传输窗口
-void chat::on_sendfile_clicked()
+void chatDlg::on_sendfile_clicked()
 {
     fileTrans *ft = new fileTrans(this);
     ft->show();
 
 }
 // 保存聊天记录
-void chat::on_save_clicked()
+void chatDlg::on_save_clicked()
 {
     if(ui->textBrowser->document()->isEmpty()){
         QMessageBox::warning(this, tr("警告"), tr("聊天记录为空！"),QMessageBox::Ok);
@@ -148,9 +144,8 @@ void chat::on_save_clicked()
     }
 }
 // 清空聊天记录
-void chat::on_clear_clicked()
+void chatDlg::on_clear_clicked()
 {
     ui->textBrowser->clear();
 }
-
 

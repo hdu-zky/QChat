@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include "user.h"
+#include "chatdlgstack.h"
+
 #include <QMainWindow>
 #include <QTableWidgetItem>
 #include <QStandardItemModel>
@@ -46,7 +48,8 @@ private:
     chat *dw;
     List *list;
     QString userId;
-    int rawCount;
+    chatDlgStack *chatStack;
+    int rawCount, dlgCount;
 };
 
 #endif // MAINWINDOW_H
