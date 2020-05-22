@@ -14,7 +14,7 @@ fileRecv::fileRecv(QWidget *parent) :
     fileNameSize = 0;
 
     tcpClient = new QTcpSocket(this);
-    tcpPort = 6666;
+    tcpPort = 6667;
 
     connect(tcpClient,SIGNAL(readyRead()),this,SLOT(readMessage()));
     connect(tcpClient,SIGNAL(error(QAbstractSocket::SocketError)),this,

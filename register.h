@@ -22,9 +22,12 @@ private slots:
 
     void on_btn_Register_clicked();
 
+    void on_btn_chooseImg_clicked();
+    void selectImgId(int i);
 private:
     Ui::Register *ui;
     QSqlDatabase dataBase;
+    int imgId;
 };
 
 #endif // REGISTER_H

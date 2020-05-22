@@ -65,6 +65,7 @@ void findGroup::on_add_clicked()
             }
         }
     }
+    ui->add->setEnabled(false);
 }
 
 void findGroup::on_find_clicked()

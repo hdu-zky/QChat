@@ -33,6 +33,8 @@ public:
     void refresh(){
         on_refresh_clicked();
     }
+protected:
+    void closeEvent(QCloseEvent *event);
 private slots:
     void on_addFriendGroup_clicked();
     void on_openDialogWindow_clicked();

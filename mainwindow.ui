@@ -57,6 +57,11 @@
       <string>名称</string>
      </property>
     </column>
+    <column>
+     <property name="text">
+      <string/>
+     </property>
+    </column>
    </widget>
    <widget class="QPushButton" name="refresh">
     <property name="geometry">

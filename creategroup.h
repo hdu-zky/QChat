@@ -21,8 +21,13 @@ private slots:
 
     void on_btn_create_clicked();
 
+    void on_btn_chooseImg_clicked();
+    void selectImgId(int id);
+
 private:
     Ui::createGroup *ui;
+    int imgId;
+    QString img;
 };
 
 #endif // CREATEGROUP_H

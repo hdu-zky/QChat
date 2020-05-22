@@ -12,7 +12,7 @@ fileTrans::fileTrans(QWidget *parent) :
 {
     ui->setupUi(this);
     this->setFixedSize(300,200);
-    tcpPort = 6666;
+    tcpPort = 6667;
     tcpServer = new QTcpServer(this);
     connect(tcpServer,SIGNAL(newConnection()),this,SLOT(sendMessage()));
     initServer();

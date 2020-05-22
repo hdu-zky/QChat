@@ -5,15 +5,18 @@
 #include <QDateTime>
 #include <QCryptographicHash> // MD5加密库
 #include <QDebug>
+#include <QListWidget>
+#include <QPushButton>
+#include <QVBoxLayout>
 
 Register::Register(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::Register)
 {
     ui->setupUi(this);
-    this->setFixedSize(400,372);
+    this->setFixedSize(300,380);
 //    setAttribute(Qt::WA_DeleteOnClose);
-    setWindowFlags(windowFlags()&~Qt::WindowContextHelpButtonHint);
+    setWindowFlags(windowFlags()& ~Qt::WindowMaximizeButtonHint & ~Qt::WindowContextHelpButtonHint);
 }
 
 Register::~Register()
@@ -87,3 +90,42 @@ void Register::on_btn_Register_clicked()
     }
     return;
 }
+
+void Register::on_btn_chooseImg_clicked()
+{
+    QDialog *selectImg = new QDialog(this);
+    selectImg->setWindowTitle(tr("选择图片"));
+    selectImg->resize(380,300);
+
+    QListWidget *list = new QListWidget(selectImg);
+    QPushButton *btn = new QPushButton(selectImg);
+    btn->setText(tr("确定"));
+    btn->setMinimumWidth(100); btn->setMinimumHeight(30);
+    QVBoxLayout *vlayout = new  QVBoxLayout(selectImg);
+    vlayout->addWidget(list);
+    vlayout->addWidget(btn);
+    connect(list, SIGNAL(currentRowChanged(int)), this, SLOT(selectImgId(int)));
+    connect(btn, SIGNAL(clicked(bool)), selectImg, SLOT(accept()));
+    list->setViewMode(QListView::IconMode);   //设置显示图标模式
+    list->setIconSize(QSize(80, 80));         //设置图标大小
+    list->setGridSize(QSize(100, 100));       //设置item大小
+
+    // 设置QLisView大小改变时，图标的调整模式，默认是固定的，可以改成自动调整
+    list->setResizeMode(QListView::Adjust);   //自动适应布局
+    // 列表中的图标默认可以拖动，如果想固定不能拖动，使用QListView::Static
+    list->setMovement(QListView::Static);
+    //新建item
+    QListWidgetItem *it;
+    for(int i=1; i<10;i++){
+        it = new QListWidgetItem(QIcon(QString(":/images/%1").arg(i)), QString("%1").arg(i));
+        //添加item
+        list->addItem(it);
+    }
+    selectImg->show();
+
+}
+void Register::selectImgId(int id){
+    imgId = id+1;
+    ui->lb_img->setStyleSheet(QString("border-image: url(':/images/%1')").arg(imgId));
+}
+

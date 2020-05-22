@@ -15,8 +15,8 @@ public:
     explicit chatDlgStack(QWidget *parent = 0);
     ~chatDlgStack();
 
-    void addChatDlg(QString userId, QString userName); // 供外部调用创建新窗口
-    void insertList(QString); // listwidget添加项
+    void addChatDlg(QString userId, QString userName, QString userImg); // 供外部调用创建新窗口
+    void insertList(QString userImg,QString userName); // listwidget添加项
     void insertDlg(QString userId, QString userName); // stackwidget插入窗口
 private slots:
     void updateCurrentIndex(int index);
@@ -24,7 +24,7 @@ private slots:
 private:
     Ui::chatDlgStack *ui;
     QStringList *userIdList, *userNameList;
-    int CurrentIndex;
+    int currentIndex;
 };
 
 #endif // CHATDLGSTACK_H

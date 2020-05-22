@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>372</height>
+    <width>300</width>
+    <height>380</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,8 +20,8 @@
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>60</x>
-     <y>50</y>
+     <x>40</x>
+     <y>40</y>
      <width>54</width>
      <height>12</height>
     </rect>
@@ -33,8 +33,8 @@
   <widget class="QLabel" name="label_2">
    <property name="geometry">
     <rect>
-     <x>60</x>
-     <y>130</y>
+     <x>40</x>
+     <y>120</y>
      <width>54</width>
      <height>12</height>
     </rect>
@@ -46,8 +46,8 @@
   <widget class="QLabel" name="label_3">
    <property name="geometry">
     <rect>
-     <x>60</x>
-     <y>170</y>
+     <x>40</x>
+     <y>160</y>
      <width>54</width>
      <height>12</height>
     </rect>
@@ -59,8 +59,8 @@
   <widget class="QLineEdit" name="input_uid">
    <property name="geometry">
     <rect>
-     <x>140</x>
-     <y>40</y>
+     <x>100</x>
+     <y>30</y>
      <width>151</width>
      <height>31</height>
     </rect>
@@ -74,8 +74,8 @@
   <widget class="QLineEdit" name="input_passWord">
    <property name="geometry">
     <rect>
-     <x>140</x>
-     <y>120</y>
+     <x>100</x>
+     <y>110</y>
      <width>151</width>
      <height>31</height>
     </rect>
@@ -95,8 +95,8 @@
   <widget class="QLineEdit" name="input_repwd">
    <property name="geometry">
     <rect>
-     <x>140</x>
-     <y>160</y>
+     <x>100</x>
+     <y>150</y>
      <width>151</width>
      <height>31</height>
     </rect>
@@ -113,10 +113,10 @@
   <widget class="QPushButton" name="btn_Register">
    <property name="geometry">
     <rect>
-     <x>140</x>
-     <y>300</y>
+     <x>100</x>
+     <y>330</y>
      <width>75</width>
-     <height>31</height>
+     <height>30</height>
     </rect>
    </property>
    <property name="text">
@@ -126,10 +126,10 @@
   <widget class="QPushButton" name="btn_Quit">
    <property name="geometry">
     <rect>
-     <x>220</x>
-     <y>300</y>
+     <x>180</x>
+     <y>330</y>
      <width>75</width>
-     <height>31</height>
+     <height>30</height>
     </rect>
    </property>
    <property name="text">
@@ -139,8 +139,8 @@
   <widget class="QLineEdit" name="input_email">
    <property name="geometry">
     <rect>
-     <x>140</x>
-     <y>200</y>
+     <x>100</x>
+     <y>190</y>
      <width>151</width>
      <height>31</height>
     </rect>
@@ -157,8 +157,8 @@
   <widget class="QLabel" name="label_4">
    <property name="geometry">
     <rect>
-     <x>60</x>
-     <y>210</y>
+     <x>40</x>
+     <y>200</y>
      <width>54</width>
      <height>12</height>
     </rect>
@@ -170,8 +170,8 @@
   <widget class="QLineEdit" name="input_tel">
    <property name="geometry">
     <rect>
-     <x>140</x>
-     <y>240</y>
+     <x>100</x>
+     <y>230</y>
      <width>151</width>
      <height>31</height>
     </rect>
@@ -188,8 +188,8 @@
   <widget class="QLabel" name="label_5">
    <property name="geometry">
     <rect>
-     <x>60</x>
-     <y>250</y>
+     <x>40</x>
+     <y>240</y>
      <width>54</width>
      <height>12</height>
     </rect>
@@ -201,8 +201,8 @@
   <widget class="QLineEdit" name="input_userName">
    <property name="geometry">
     <rect>
-     <x>140</x>
-     <y>80</y>
+     <x>100</x>
+     <y>70</y>
      <width>151</width>
      <height>31</height>
     </rect>
@@ -216,14 +216,53 @@
   <widget class="QLabel" name="label_6">
    <property name="geometry">
     <rect>
-     <x>60</x>
-     <y>90</y>
+     <x>40</x>
+     <y>80</y>
      <width>54</width>
      <height>12</height>
     </rect>
    </property>
    <property name="text">
     <string>用户名</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_7">
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>290</y>
+     <width>54</width>
+     <height>12</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>头像</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lb_img">
+   <property name="geometry">
+    <rect>
+     <x>100</x>
+     <y>270</y>
+     <width>50</width>
+     <height>50</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btn_chooseImg">
+   <property name="geometry">
+    <rect>
+     <x>154</x>
+     <y>282</y>
+     <width>100</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>选择头像图片</string>
    </property>
   </widget>
  </widget>
@@ -235,7 +274,6 @@
   <tabstop>input_email</tabstop>
   <tabstop>input_tel</tabstop>
   <tabstop>btn_Register</tabstop>
-  <tabstop>btn_Quit</tabstop>
  </tabstops>
  <resources>
   <include location="images.qrc"/>

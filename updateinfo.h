@@ -21,9 +21,12 @@ private slots:
 
     void on_btn_update_clicked();
 
+    void on_btn_chooseImg_clicked();
+    void selectImgId(int id);
 private:
     Ui::updateInfo *ui;
-    QString uId, userName, email, tel;
+    QString uId, userName, email, tel, img;
+    int imgId;
 };
 
 #endif // UPDATEINFO_H

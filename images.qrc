@@ -11,5 +11,14 @@
         <file alias="ti">images/textitalic.png</file>
         <file alias="tu">images/textunder.png</file>
         <file alias="login">images/自动登陆.gif</file>
+        <file alias="2">images/2.jpg</file>
+        <file alias="4">images/4.jpg</file>
+        <file alias="7">images/7.jpg</file>
+        <file alias="8">images/8.jpg</file>
+        <file alias="9">images/9.jpg</file>
+        <file alias="3">images/3.jpg</file>
+        <file alias="5">images/5.jpg</file>
+        <file alias="6">images/6.jpg</file>
+        <file alias="1">images/1.jpg</file>
     </qresource>
 </RCC>
