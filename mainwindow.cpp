@@ -17,12 +17,16 @@
 QString UId="", UName="";
 QSqlDatabase getDB(){
     QSqlDatabase dataBase;
-    dataBase=QSqlDatabase::addDatabase("QMYSQL");
+    dataBase=QSqlDatabase::addDatabase("QMYSQL3");
     dataBase.setHostName("localhost");
     dataBase.setUserName("root");
     dataBase.setPassword("223412");
     dataBase.setDatabaseName("test");
     dataBase.open();
+//    db.setDatabaseName("database.db");
+//    if(!dataBase.open()) {
+//        QMessageBox::warning(0,QString("警告"),QString("打开数据库失败！"),QMessageBox::Ok);
+//    }
     return dataBase;
 }
 MainWindow::MainWindow(QWidget *parent) :
@@ -30,7 +34,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    this->setFixedSize(400,544);
+    this->setFixedSize(400,508);
     ui->mainToolBar->setEnabled(false);
 //    ui->menuBar->setEnabled(false);
     ui->statusBar->setEnabled(false);
@@ -44,7 +48,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tableWidget->setAlternatingRowColors(true);                        //设置隔一行变一颜色，即：一灰一白
 //    ui->tableWidget->horizontalHeader()->setStyleSheet("QHeaderView::section{background:skyblue;}");
     ui->tableWidget->setShowGrid(false); //不显示格子线
-    ui->tablewidget->verticalHeader()->setvisible(false);
+    ui->tableWidget->verticalHeader()->setVisible(false);//去掉默认行号
+    ui->tableWidget->setStyleSheet("QTableWidget::item {height: 36px;}");
     // 设置选中行背景色
     ui->tableWidget->setStyleSheet("QTableWidget::item:selected {background-color: #F8F0DD;color: #3a3a3a;}");
     //设置无边框
@@ -54,13 +59,14 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tableWidget->setIconSize(QSize(30,30));
     ui->tableWidget->resizeColumnToContents (0); //根据内容自动调整列宽行高
     connect(ui->tableWidget, SIGNAL(customContextMenuRequested(QPoint)), SLOT(customMenupPop(QPoint)));
-    connect(ui->tableWidget, SIGNAL(clicked(QModelIndex)),SLOT(on_openDialogWindow_clicked()));
+    connect(ui->tableWidget, SIGNAL(doubleClicked(QModelIndex)),SLOT(on_openDialogWindow_clicked()));
     connect(ui->exit,SIGNAL(triggered(bool)),this,SLOT(close()));
     connect(ui->updateInfo,SIGNAL(triggered(bool)),this,SLOT(updateInf()));
     connect(ui->createGroup,SIGNAL(triggered(bool)),this,SLOT(createGp()));
     connect(ui->reSign,SIGNAL(triggered(bool)),this,SLOT(on_quit_clicked()));
-    chatStack = new chatDlgStack(this);
+
     dlgCount =0;
+    userImgId = new QStringList;
 }
 
 MainWindow::~MainWindow()
@@ -91,28 +97,33 @@ void MainWindow::on_addFriendGroup_clicked()
 
 void MainWindow::on_openDialogWindow_clicked()
 {
-//    if(dlgCount == 0){
-//        // 放到构造函数中，防止每次和一个新的好友聊天都创建一个新的对象
-
-//        dlgCount++;
-//    }
+    if(dlgCount == 0){
+        // 放到构造函数中，防止每次和一个新的好友聊天都创建一个新的对象
+        chatStack = new chatDlgStack(this);
+        dlgCount++;
+    }
     if(ui->tableWidget->selectedItems().isEmpty()){
         QMessageBox::warning(0,QString("警告"),QString("你没有选择群聊或好友！"),QMessageBox::Ok);
         return;
     }else{
         QList<QTableWidgetItem*> items = ui->tableWidget->selectedItems();
+        int row=ui->tableWidget->row(items.at(1));//获取选中的行
         QString uid = items.at(1)->text();
         QString name = items.at(2)->text();
-        QString img = items.at(3)->text();
+        QString img = userImgId->at(row);
         chatStack->addChatDlg(uid, name, img);
         chatStack->show();
     }
+//    chat *ca = new chat(this);
+//    ca->show();
+//    on_refresh_clicked();
 }
 
 void MainWindow::on_refresh_clicked()
 {
     ui->tableWidget->setRowCount(0);
     ui->tableWidget->clearContents();
+    userImgId->clear();
     QSqlQuery query(getDB());
     if(userId.isEmpty()){
         QMessageBox::warning(0,QString("警告"),QString("账号异常，请重新登录！"),QMessageBox::Ok);
@@ -124,6 +135,13 @@ void MainWindow::on_refresh_clicked()
     query.exec(sql);
     QString uid , uName, uImg;
     int i=0;
+    // 开始插入数据
+    ui->tableWidget->insertRow(i);
+    ui->tableWidget->setItem(i, 0, new QTableWidgetItem(tr("好友")));
+    ui->tableWidget->setItem(i, 1, new QTableWidgetItem(QIcon(QString(":/images/%1").arg(1)), "123123"));
+    ui->tableWidget->setItem(i, 2, new QTableWidgetItem("peter-Pc"));
+    userImgId->append("1");
+    i++;
     while(query.next()){
         uid = query.value(0).toString();
         uName = query.value(1).toString();
@@ -132,7 +150,7 @@ void MainWindow::on_refresh_clicked()
         ui->tableWidget->setItem(i, 0, new QTableWidgetItem(tr("好友")));
         ui->tableWidget->setItem(i, 1, new QTableWidgetItem(QIcon(QString(":/images/%1").arg(uImg)), uid));
         ui->tableWidget->setItem(i, 2, new QTableWidgetItem(uName));
-        ui->tableWidget->setItem(i, 3, new QTableWidgetItem(uImg));
+        userImgId->append(uImg);
         i++;
     }
     sql = QString("select groupsid, groupsname, headimg from groups where groupsid in(select group_id from ingroup where g_uid = '%1')").arg(userId);
@@ -146,7 +164,7 @@ void MainWindow::on_refresh_clicked()
         ui->tableWidget->setItem(i, 0, new QTableWidgetItem(tr("群聊")));
         ui->tableWidget->setItem(i, 1, new QTableWidgetItem(QIcon(QString(":/images/%1").arg(gImg)), gid));
         ui->tableWidget->setItem(i, 2, new QTableWidgetItem(gName));
-        ui->tableWidget->setItem(i, 3, new QTableWidgetItem(gImg));
+        userImgId->append(gImg);
         i++;
     }
     query.finish();

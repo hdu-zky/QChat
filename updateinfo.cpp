@@ -78,6 +78,7 @@ void updateInfo::on_btn_update_clicked()
 void updateInfo::on_btn_chooseImg_clicked()
 {
     QDialog *selectImg = new QDialog(this);
+    selectImg->setWindowFlags(windowFlags()&~Qt::WindowContextHelpButtonHint);
     selectImg->setWindowTitle(tr("选择图片"));
     selectImg->resize(380,300);
 
@@ -88,8 +89,6 @@ void updateInfo::on_btn_chooseImg_clicked()
     QVBoxLayout *vlayout = new  QVBoxLayout(selectImg);
     vlayout->addWidget(list);
     vlayout->addWidget(btn);
-    connect(list, SIGNAL(currentRowChanged(int)), this, SLOT(selectImgId(int)));
-    connect(btn, SIGNAL(clicked(bool)), selectImg, SLOT(accept()));
     list->setViewMode(QListView::IconMode);   //设置显示图标模式
     list->setIconSize(QSize(80, 80));         //设置图标大小
     list->setGridSize(QSize(100, 100));       //设置item大小
@@ -105,6 +104,11 @@ void updateInfo::on_btn_chooseImg_clicked()
         //添加item
         list->addItem(it);
     }
+    list->setCurrentRow(img.toInt()-1);// 设置选取框里的当前选中图片为当前用户图片
+//    btn->setEnabled(false);
+    connect(list, SIGNAL(currentRowChanged(int)), this, SLOT(selectImgId(int)));
+//    connect(list, SIGNAL(currentRowChanged(int)), btn, SLOT(setEnabled(int)));
+    connect(btn, SIGNAL(clicked(bool)), selectImg, SLOT(accept()));
     selectImg->show();
 }
 void updateInfo::selectImgId(int id){

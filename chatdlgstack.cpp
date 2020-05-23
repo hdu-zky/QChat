@@ -47,7 +47,7 @@ void chatDlgStack::addChatDlg(QString userId, QString userName, QString userImg)
         insertList(userImg, userName);
         userNameList->append(userName);
         userIdList->append(userId);
-        insertDlg(userId, userName);
+        insertDlg(userId, userName, userImg);
         updateCurrentIndex(ui->stackedWidget->currentIndex());
     }
 }
@@ -55,21 +55,20 @@ void chatDlgStack::addChatDlg(QString userId, QString userName, QString userImg)
 void chatDlgStack::insertList(QString userImg, QString userName){
     QListWidgetItem *item = new QListWidgetItem(QIcon(QString(":/images/%1").arg(userImg)),userName);
     item->setSizeHint(QSize(110, 36));  //每次改变Item的高度
-    item->setForeground(Qt::darkBlue);
+//    item->setForeground(Qt::darkBlue);
     item->setFont(QFont("微软雅黑",12));
     item->setBackgroundColor(QColor(245,255,250));
     ui->listWidget->addItem(item);
     ui->listWidget->setCurrentRow(ui->listWidget->count()-1);
 }
 // stackwidget插入窗口
-void chatDlgStack::insertDlg(QString userId, QString userName){
+void chatDlgStack::insertDlg(QString userId, QString userName, QString userImg){
     chatDlg *chat = new chatDlg(ui->stackedWidget);
     // 绑定聊天子窗口的关闭窗口信号，进行子窗口关闭
     connect(chat,SIGNAL(closeSignal()),this,SLOT(closeCurChatDlg()));
-    chat->setUserInfo(userId, userName);
+    chat->setUserInfo(userId, userName, userImg);
     ui->stackedWidget->addWidget(chat);
     ui->stackedWidget->setCurrentIndex(ui->stackedWidget->count()-1);
-//    ui->stackedWidget->activateWindow();
 }
 // 关闭子窗口
 void chatDlgStack::closeCurChatDlg(){

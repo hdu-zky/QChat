@@ -1,6 +1,5 @@
 #include "chatdlg.h"
 #include "ui_chatdlg.h"
-#include "user.h"
 #include "filetrans.h"
 
 #include <QListWidget>
@@ -19,8 +18,12 @@ chatDlg::chatDlg(QWidget *parent) :
     ui->setupUi(this);
     this->setFixedSize(580,550);
     ui->send->setEnabled(false);
+    ui->textEdit->setFocusPolicy(Qt::StrongFocus);
+    ui->textBrowser->setFocusPolicy(Qt::NoFocus);
+    ui->lb_spoint->setStyleSheet("border: 1px solid;border-radius: 5px;");
     ui->textEdit->setStyleSheet("background: #FFFFF6;border: 1px solid;border-radius:10px;border-color: #F8F0DD;");
     ui->textBrowser->setStyleSheet("background: #FFFFF6;border: 1px solid;border-radius:10px;border-color: #F8F0DD;");
+    ui->textEdit->setFocus();
     connect(ui->textEdit,SIGNAL(textChanged()),this,SLOT(enableSendBtn()));
     connect(ui->font,SIGNAL(currentFontChanged(QFont)),this,SLOT(on_font_currentFontChanged(QFont)));
     connect(ui->fontSize,SIGNAL(currentIndexChanged(QString)),this,SLOT(on_fontSize_currentIndexChanged(QString)));
@@ -28,7 +31,7 @@ chatDlg::chatDlg(QWidget *parent) :
     setWindowFlags(windowFlags()&~Qt::WindowContextHelpButtonHint);
 
     udpSocket = new QUdpSocket(this);
-    port = 45454;
+    port = 45456;
     udpSocket->bind(port,QUdpSocket::ShareAddress
                     | QUdpSocket::ReuseAddressHint);
     connect(udpSocket,SIGNAL(readyRead()),this,SLOT(processPendingDatagrams()));
@@ -42,34 +45,44 @@ chatDlg::~chatDlg()
 {
     delete ui;
 }
+// 接收udp消息
 void chatDlg::processPendingDatagrams()
 {
     while(udpSocket->hasPendingDatagrams())
     {
         QByteArray datagram;
         datagram.resize(udpSocket->pendingDatagramSize());
+        // 接收一个数据报并将其存储在data中，返回的是数据报的长度
+        // 将读取到的不大于datagram.size()大小的数据输入到datagram.data()中
         udpSocket->readDatagram(datagram.data(),datagram.size());
         QDataStream in(&datagram,QIODevice::ReadOnly);
         int messageType;
+        // 读入消息类型数据
+        // in>>后面如果为QString，则表示读取一个知道出现'\0'的字符串
         in >> messageType;
+
         QString userName,localHostName,ipAddress,message;
         QString time = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
         switch(messageType)
         {
-//        case Message:
-//        {
-//            in >>userName >>localHostName >>ipAddress >>message;
-//            ui->textBrowser->setTextColor(Qt::blue);
-//            ui->textBrowser->setCurrentFont(QFont("Times New Roman",12));
-//            ui->textBrowser->append("[ " +userName+" ] "+ time);
-//            ui->textBrowser->append(message);
-//            break;
-//        }
+        case Message:
+        {
+            in >>userName >>localHostName >>ipAddress >>message;
+            qDebug()<<"\nchatDlg::processPendingDatagrams message: "<<userName<<localHostName<<ipAddress<<message<<endl;
+            ui->textBrowser->setTextColor(Qt::blue);
+            ui->textBrowser->setCurrentFont(QFont("微软雅黑",15));
+            ui->textBrowser->append("[ " +userName+" ] "+ time);
+            ui->textBrowser->setCurrentFont(QFont("微软雅黑",13));
+            ui->textBrowser->append(message);
+            break;
+        }
         case FileName:
         {
             in >>userName >>localHostName >> ipAddress;
             QString clientAddress,fileName;
             in >> clientAddress >> fileName;
+            qDebug()<<"\nchatDlg::processPendingDatagrams FileName: "<<"userName"<<userName<<"localHostName"<<localHostName<<endl;
+            qDebug()<<"ipAddress: "<<ipAddress<<"clientAddress"<<clientAddress<<"fileName"<<fileName<<endl;
             hasPendingFile(userName,ipAddress,clientAddress,fileName);
             break;
         }
@@ -89,6 +102,7 @@ void chatDlg::processPendingDatagrams()
         }
     }
 }
+// 获得本机IP
 QString chatDlg::getIP(){
     QList<QHostAddress> list = QNetworkInterface::allAddresses();
     foreach (QHostAddress address, list){
@@ -98,6 +112,7 @@ QString chatDlg::getIP(){
     }
     return 0;
 }
+// 发送udp消息
 void chatDlg::sendMessage(MessageType type, QString serverAddress){
     QByteArray data;
     QDataStream out(&data,QIODevice::WriteOnly);
@@ -120,20 +135,34 @@ void chatDlg::sendMessage(MessageType type, QString serverAddress){
                     return;
                 }
                 out << address << getMessage();
-//                ui->textBrowser->verticalScrollBar()->setValue(ui->textBrowser->verticalScrollBar()->maximum());
+ //                ui->textBrowser->verticalScrollBar()->setValue(ui->textBrowser->verticalScrollBar()->maximum());
                 break;
 
             }
         case FileName:{
                 QSqlQuery query(getDB());
-                QString sql = QString("select ip from user where uid = '%1'").arg(userId);
-                qDebug()<<"userid: "<<userId<<endl;
-                query.exec(sql);
-                int clientAddress = query.value(0).toInt();
+                qDebug()<<"userId: "<<userId<<endl;
+                QString sql, clientAddress, userName;
+                sql = QString("select userName, ipAddress  from user where uid = '%1'").arg(userId);
+                if(!query.exec(sql)){
+                    qDebug()<<"query.lastQuery():"<<query.lastQuery()<<endl;
+                    return;
+                }
+
+                // 使用数据时一定要query.next()，不然根本读取不到，这个简单的问题困扰了愚蠢的我很久
+                while(query.next()){
+                    userName = query.value(0).toString();
+                    clientAddress = query.value(1).toString();
+                }
+                qDebug()<<"clientAddress: "<<clientAddress<<"userName: "<<userName<<endl;
+                if(clientAddress.isEmpty()){
+                    QMessageBox::warning(this, QString("警告"), QString("目标ip地址为空！"),QMessageBox::Ok);
+                    return;
+                }
+                out << address << clientAddress << fileName;
                 query.finish();
                 query.clear();
                 getDB().close();
-                out << address << clientAddress << fileName;
                 break;
             }
         case Refuse:{
@@ -141,7 +170,8 @@ void chatDlg::sendMessage(MessageType type, QString serverAddress){
                 break;
             }
     }
-    udpSocket->writeDatagram(data,data.length(),QHostAddress::Broadcast, port);
+    // QHostAddress::Broadcast是指发送数据的目的地址
+    udpSocket->writeDatagram(data,data.length(),QHostAddress::Broadcast, port); //目标地址，QHostAddress::Broadcast广播发送
 
 }
 QString chatDlg::getUserName()
@@ -173,25 +203,28 @@ QString chatDlg::getMessage()
 }
 void chatDlg::sentFileName(QString fileName)
 {
+    qDebug()<<"chatDlg::sentFileName"<<fileName<<endl;
     this->fileName = fileName;
-    sendMessage(FileName);
+    QString recvAddress = "169.254.166.189";
+    sendMessage(FileName, userId);
 }
 void chatDlg::hasPendingFile(QString userName,QString serverAddress,
                             QString clientAddress,QString fileName)
 {
     QString ipAddress = getIP();
-
+    qDebug()<<"chatDlg::hasPendingFile ipAddress: "<<ipAddress<<"clientAddress"<<clientAddress<<endl;
     if(ipAddress == clientAddress){
         int btn = QMessageBox::information(this,QString("提示"),
                                            QString("来自%1(%2)的文件%3,接收吗")
                                            .arg(userName).arg(serverAddress).arg(fileName),
                                            QMessageBox::Yes,QMessageBox::No);
         if(btn == QMessageBox::Yes){
-            QString name = QFileDialog::getSaveFileName(0,QString("???????"),fileName);
+            QString name = QFileDialog::getSaveFileName(0,QString("文件保存为"),fileName);
 
             if(!name.isEmpty()){
                 fileRecv *client = new fileRecv(this);
                 client->setFileName(name);
+                // serverAddress 发送方IP地址
                 client->setHostAddress(QHostAddress(serverAddress));
                 client->show();
             }
@@ -200,10 +233,40 @@ void chatDlg::hasPendingFile(QString userName,QString serverAddress,
         }
     }
 }
-void chatDlg::setUserInfo(QString uid, QString uname){
+void chatDlg::setUserInfo(QString uid, QString uname, QString imgId){
     userId = uid;
     userName = uname;
+    userimgId = imgId;
+    QSqlQuery query(getDB());
+    QString sql;
+    qDebug()<<"userId: "<<userId<<endl;
+    sql = QString("select email, tel, status, ipAddress  from user where uid = '%1'").arg(userId);
+    if(!query.exec(sql)){
+        qDebug()<<"query.lastQuery():"<<query.lastQuery()<<endl;
+        return;
+    }
+    // 使用数据时一定要query.next()，不然根本读取不到，这个简单的问题困扰了愚蠢的我很久
+    while(query.next()){
+        useremail = query.value(0).toString();
+        usertel = query.value(1).toString();
+        userstatus = query.value(2).toString();
+        useripAddress = query.value(3).toString();
+    }
     ui->checkInfo->setText(QString("%1(%2)").arg(uname).arg(uid));
+    ui->lb_img->setStyleSheet(QString("border-image: url(':/images/%1')").arg(imgId));
+    ui->lb_name->setText(uname);
+    if(userstatus == "1"){
+        ui->lb_status->setText(QString("在线"));
+        ui->lb_spoint->setStyleSheet("background-color: #92bd6c");
+        ui->lb_status->setStyleSheet("color: green");
+    }else{
+        ui->lb_status->setText(QString("离线"));
+        ui->lb_spoint->setStyleSheet("background-color: #f87878");
+        ui->lb_status->setStyleSheet("color: gray");
+    }
+    ui->lb_email->setText(QString("邮箱: %1").arg(useremail));
+    ui->lb_tel->setText(QString("电话: %1").arg(usertel));
+    ui->lb_instruct->setText(useripAddress);
 }
 void chatDlg::enableSendBtn(){
     if(!ui->textEdit->toPlainText().isEmpty()){
@@ -215,22 +278,32 @@ void chatDlg::enableSendBtn(){
 
 void chatDlg::on_send_clicked()
 {
-    QString word = ui->textEdit->toHtml();
-    QString time = QDateTime::currentDateTime().toString(QString("  yyyy-MM-dd hh:mm:ss"));
-    QString user = QString(QString("<b style='color: darkBlue' >[%1]</b><span style='color: grey'>(<u>%2</u>)<i>%3</i></span>")
-                           .arg(userName).arg(userId).arg(time));
-//    ui->textBrowser->setTextColor(Qt::darkBlue);
-    ui->textBrowser->append(user);
-    ui->textBrowser->append(word);
-    ui->textEdit->clear();
+    sendMessage(Message);
+//    QString word = ui->textEdit->toHtml();
+//    QString time = QDateTime::currentDateTime().toString(QString("  yyyy-MM-dd hh:mm:ss"));
+//    QString user = QString(QString("<b style='color: darkBlue' >[%1]</b><span style='color: grey'>(<u>%2</u>)<i>%3</i></span>")
+//                           .arg(userName).arg(userId).arg(time));
+// //    ui->textBrowser->setTextColor(Qt::darkBlue);
+//    ui->textBrowser->append(user);
+//    ui->textBrowser->append(word);
+//    ui->textEdit->clear();
     ui->send->setEnabled(false);
 }
+// 打开文件传输窗口
+void chatDlg::on_sendfile_clicked()
+{
+//    fileTrans *ft = new fileTrans(this);
+//    ft->show();
+    server->show();
+    server->initServer();
 
+}
 void chatDlg::on_close_clicked()
 {
     // 给栈窗体发送关闭信号
     ui->close->setEnabled(false);
     emit closeSignal();
+    udpSocket->close();
     this->close();
 }
 void chatDlg::on_font_currentFontChanged(const QFont &f)
@@ -275,13 +348,7 @@ void chatDlg::on_textbold_clicked(bool checked)
         ui->textEdit->setFontWeight(QFont::Normal);
     ui->textEdit->setFocus();
 }
-// 打开文件传输窗口
-void chatDlg::on_sendfile_clicked()
-{
-    fileTrans *ft = new fileTrans(this);
-    ft->show();
 
-}
 // 保存聊天记录
 void chatDlg::on_save_clicked()
 {

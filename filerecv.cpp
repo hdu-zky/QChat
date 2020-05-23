@@ -2,6 +2,7 @@
 #include "ui_filerecv.h"
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QDebug>
 
 fileRecv::fileRecv(QWidget *parent) :
     QDialog(parent),
@@ -30,21 +31,25 @@ void fileRecv::setHostAddress(QHostAddress address)
     hostAddress = address;
     newConnect();
 }
-
+// 创建一个新tcp连接
 void fileRecv::newConnect()
 {
     blockSize = 0;
     tcpClient->abort();
     tcpClient->connectToHost(hostAddress, tcpPort);
+    qDebug()<<"fileRecv::newConnect hostAddress:"<<hostAddress<<endl;
     time.start();
 }
-
+// 读数据
 void fileRecv::readMessage()
 {
     QDataStream in(tcpClient);
+    qDebug()<<"tcpClient->isReadable(): "<<tcpClient->isReadable()<<endl;
     in.setVersion(QDataStream::Qt_5_5);
 
     float useTime = time.elapsed();
+
+    qDebug()<<"fileRecv::readMessage useTime:"<<useTime<<endl;
 
     if(bytesReceived <= sizeof(qint64)*2){
         if((tcpClient->bytesAvailable() >= sizeof(qint64)*2) && (fileNameSize == 0)){
@@ -95,7 +100,7 @@ void fileRecv::displayError(QAbstractSocket::SocketError socketError)
     switch(socketError)
     {
         case QAbstractSocket::RemoteHostClosedError : break;
-        default : qDebug() << tcpClient->errorString();
+        default : qDebug() <<"fileRecv::displayError " <<tcpClient->errorString();
     }
 }
 void fileRecv::on_quit_clicked()

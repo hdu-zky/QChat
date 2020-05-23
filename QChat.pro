@@ -36,7 +36,7 @@ SOURCES += \
     creategroup.cpp \
     filerecv.cpp \
     chatdlg.cpp \
-    chatdlgstack.cpp
+    chatdlgstack.cpp \
 
 HEADERS += \
         hosturl.h\
@@ -53,7 +53,7 @@ HEADERS += \
     creategroup.h \
     filerecv.h \
     chatdlg.h \
-    chatdlgstack.h
+    chatdlgstack.h \
 
 FORMS += \
         mainwindow.ui \

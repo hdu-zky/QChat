@@ -141,6 +141,7 @@ void login::writeSettings()
 }
 void login::on_Login_Button_clicked()
 {
+//    accept();
     userId = ui->UserName->text();
     QString pWord = ui->Password->text();
     QString MD5;
@@ -149,7 +150,7 @@ void login::on_Login_Button_clicked()
     pWord.append(pWd.toHex());
     pWd = QCryptographicHash::hash(pWord.toLatin1(), QCryptographicHash::Md5);
     MD5.append(pWd.toHex());
-    qDebug()<<userId <<", "<< MD5<<endl;
+//    qDebug()<<userId <<", "<< MD5<<endl;
     if(userId.length()==0 || pWord.length()==0){
         QMessageBox::warning(this, tr("error"), tr("input can't be blank"), QMessageBox::Ok);
         return;
@@ -200,7 +201,7 @@ QString login::getIPV4(){
                break;
            }
      }
-    qDebug()<<strIpAddress<<endl;
+//    qDebug()<<strIpAddress<<endl;
     return strIpAddress;
 }
 

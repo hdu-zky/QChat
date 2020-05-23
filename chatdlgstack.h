@@ -17,7 +17,7 @@ public:
 
     void addChatDlg(QString userId, QString userName, QString userImg); // 供外部调用创建新窗口
     void insertList(QString userImg,QString userName); // listwidget添加项
-    void insertDlg(QString userId, QString userName); // stackwidget插入窗口
+    void insertDlg(QString userId, QString userName, QString userImg); // stackwidget插入窗口
 private slots:
     void updateCurrentIndex(int index);
     void closeCurChatDlg();

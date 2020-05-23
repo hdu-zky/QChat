@@ -23,17 +23,18 @@ void fileTrans::initServer()
     TotalBytes = 0;
     bytesWritten = 0;
     bytesToWrite = 0;
-    ui->progressBar->reset();
+    ui->progressBar->setValue(0);
+//    ui->progressBar->->reset();
     ui->openFile->setEnabled(true);
     ui->startSend->setEnabled(false);
 
-    tcpServer->close();
+//    tcpServer->close();
 
 }
 //
 void fileTrans::sendMessage()
 {
-    ui->startSend->setEnabled(false);// 正在发送中，禁止开始发送按钮
+
     clientConnection = tcpServer->nextPendingConnection();
     // 更新发送进度条
     connect(clientConnection,SIGNAL(bytesWritten(qint64)),SLOT(updateClientProgress(qint64)));
@@ -46,15 +47,16 @@ void fileTrans::sendMessage()
     }
     TotalBytes = localFile->size();
     QDataStream sendOut(&outBlock,QIODevice::WriteOnly);
-    sendOut.setVersion(QDataStream::Qt_4_6);
+    sendOut.setVersion(QDataStream::Qt_5_5);
     time.start();
     QString currentFile = filePath.right(filePath.size() - filePath.lastIndexOf('/')-1);
+    qDebug() <<"fileTrans::sendMessage "<< currentFile<<endl;
     sendOut << qint64(0) << qint64(0) << currentFile;
     TotalBytes += outBlock.size();
     sendOut.device()->seek(0);
     sendOut << TotalBytes << qint64((outBlock.size()-sizeof(qint64)*2));
     bytesToWrite = TotalBytes - clientConnection->write(outBlock);
-    qDebug() << currentFile << TotalBytes;
+    qDebug() << "TotalBytes "<< TotalBytes<<endl;
     outBlock.resize(0);
 }
 
@@ -91,12 +93,16 @@ void fileTrans::refused()
 {
     tcpServer->close();
     ui->label->setText(QString("对方已拒收"));
+    ui->openFile->setEnabled(false);
+    ui->startSend->setEnabled(false);
 }
 
 void fileTrans::on_startSend_clicked()
 {
+    ui->startSend->setEnabled(false);// 正在发送中，禁止开始发送按钮
     if(!tcpServer->listen(QHostAddress::Any,tcpPort)){
-        qDebug() << tcpServer->errorString();
+        qDebug() <<"fileTrans::on_startSend_clicked error"<< tcpServer->errorString();
+        tcpServer->close();
         close();
         return;
     }
@@ -107,11 +113,11 @@ void fileTrans::on_startSend_clicked()
 //退出发送界面
 void fileTrans::on_quit_clicked()
 {
-    if(tcpServer->isListening())
-    {
-        tcpServer->close();
-        clientConnection->abort();
-    }
+//    if(tcpServer->isListening())
+//    {
+//        tcpServer->close();
+//        clientConnection->abort();
+//    }
     this->close();
 }
 fileTrans::~fileTrans()
@@ -126,8 +132,9 @@ void fileTrans::on_openFile_clicked()
         QMessageBox::warning(this, "提示", "未选择数据文件", "确定");
         return;
     }
-    QFileInfo fileInfo = QFileInfo(filePath);
-    fileName = fileInfo.fileName();
+    fileName = filePath.right(filePath.size() - filePath.lastIndexOf('/')-1);
+//    QFileInfo fileInfo = QFileInfo(filePath);
+//    fileName = fileInfo.fileName();
 //    QString absolutePath = fileInfo.absolutePath();
     ui->label->setText(QString("你已选择文件：%1").arg(fileName));
     ui->startSend->setEnabled(true);

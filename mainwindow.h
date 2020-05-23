@@ -11,7 +11,6 @@
 
 class chat;
 class QListWidget;
-class List;
 namespace Ui {
 class MainWindow;
 }
@@ -48,8 +47,8 @@ private slots:
 private:
     Ui::MainWindow *ui;
     chat *dw;
-    List *list;
     QString userId;
+    QStringList *userImgId;// 存储好友头像id
     chatDlgStack *chatStack;
     int rawCount, dlgCount;
 };

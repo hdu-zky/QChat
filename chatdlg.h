@@ -27,18 +27,23 @@ public:
     void setUserName(QString uname){
         userName = uname;
     }
-    void setUserInfo(QString uid, QString uname);
+    void setUserInfo(QString uid, QString uname, QString userImg);
     QString getUserName();
     QString getMessage();
 protected:
+    // 发送数据信息到局域网
     void sendMessage(MessageType type,QString serverAddress="");
+    // 有文件数据到达
     void hasPendingFile(QString userName,QString serverAddress,
                         QString clientAddress,QString fileName);
 signals:
     void closeSignal();
 private slots:
+    // 控制发送按钮的可用
     void enableSendBtn();
+    // 有数据到达时分析处理
     void processPendingDatagrams();
+    // 接收文件发送端发送的文件名
     void sentFileName(QString);
     void on_send_clicked();
     void on_close_clicked();
@@ -54,8 +59,10 @@ private slots:
 
 private:
     Ui::chatDlg *ui;
-    int rawCount;
-    QString userId, userName;// 保存当前对话窗口的
+    int rawCount; // 记录打开窗口的个数
+    // 保存当前对话窗口的好友个人信息
+    QString userId, userName;
+    QString userimgId, useremail, usertel, userstatus, useripAddress;
 
     QUdpSocket *udpSocket;
     qint16 port;
