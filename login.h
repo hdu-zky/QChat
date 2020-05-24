@@ -36,6 +36,7 @@ private:
     Ui::login *ui;
     int tryCount=0; // 试错次数
     bool saved;
+    // 存储用户名id密码
     QString userId, userName, passWord;
     QSettings *setting;
     void execQuery();

@@ -27,9 +27,12 @@ public:
     void setUserName(QString uname){
         userName = uname;
     }
-    void setUserInfo(QString uid, QString uname, QString userImg);
+    void setUserInfo(QString mid, QString mname, QString uid, QString uname, QString userImg);
     QString getUserName();
     QString getMessage();
+//    void newParticipant(QString ipAddress, QString  recvUserId);
+//    void participantLeft(QString recvUserId);
+
 protected:
     // 发送数据信息到局域网
     void sendMessage(MessageType type,QString serverAddress="");
@@ -39,6 +42,9 @@ protected:
 signals:
     void closeSignal();
 private slots:
+    // 接收父窗口chatDlgStack发过来的用户登录下线信号
+    void newParticipant(QString ipAddress, QString  recvUserId);
+    void participantLeft(QString recvUserId);
     // 控制发送按钮的可用
     void enableSendBtn();
     // 有数据到达时分析处理
@@ -60,9 +66,10 @@ private slots:
 private:
     Ui::chatDlg *ui;
     int rawCount; // 记录打开窗口的个数
+    QString meId, meName; // 保存当前账号id
     // 保存当前对话窗口的好友个人信息
     QString userId, userName;
-    QString userimgId, useremail, usertel, userstatus, useripAddress;
+    QString userimgId, useremail, usertel, userstatus, usersignature, useripAddress;
 
     QUdpSocket *udpSocket;
     qint16 port;

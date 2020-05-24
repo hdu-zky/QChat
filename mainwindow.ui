@@ -33,8 +33,14 @@
       <height>401</height>
      </size>
     </property>
+    <attribute name="horizontalHeaderVisible">
+     <bool>true</bool>
+    </attribute>
     <attribute name="horizontalHeaderCascadingSectionResizes">
      <bool>false</bool>
+    </attribute>
+    <attribute name="horizontalHeaderDefaultSectionSize">
+     <number>90</number>
     </attribute>
     <attribute name="horizontalHeaderHighlightSections">
      <bool>true</bool>
@@ -73,6 +79,11 @@
     <column>
      <property name="text">
       <string>名称</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>未读消息</string>
      </property>
     </column>
    </widget>

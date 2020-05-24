@@ -36,7 +36,7 @@ login::login(QWidget *parent) :
 //    readIniFile();
 //    readSetting();
     setWindowFlags(windowFlags()& ~Qt::WindowMaximizeButtonHint & ~Qt::WindowContextHelpButtonHint);
-//    setWindowFlags(windowFlags()& Qt::WindowMinimizeButtonHint);
+    connect(ui->UserName,SIGNAL(textEdited(QString)), ui->Password,SLOT(clear()));
 }
 
 login::~login()
@@ -164,8 +164,9 @@ void login::execQuery(){
     QSqlQuery query(getDB());
     QString sql = QString("select uid, userName from user where uid = '%1' and passWord = '%2'").arg(userId).arg(passWord);
     query.exec(sql);
-//    UId = query.value(0).toString();
-//    UName = query.value(1).toString();
+    UId = query.value(0).toString();
+    UName = query.value(1).toString();
+    UIp = getIPV4();
     if(!query.seek(0)){
         QMessageBox::warning(this,tr("警告"),tr("登陆失败！"), QMessageBox::Ok);
         query.finish();
@@ -176,8 +177,8 @@ void login::execQuery(){
         userId = query.value(0).toString(); // 保存用户名字
         userName = query.value(1).toString(); // 保存用户名字
         writeSettings();
-//        qDebug()<<"login "<< userId<<userName<<endl;
-        sql = QString("update user set ip = '%1' where uid = '%2'").arg(getIPV4()).arg(userId);
+        //更新用户登录IP和在线状态
+        sql = QString("update user set ipAddress = '%1', status = '1' where uid = '%2'").arg(getIPV4()).arg(userId);
         query.exec(sql);
         query.finish();
         query.clear();

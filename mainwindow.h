@@ -8,6 +8,7 @@
 #include <QTableWidgetItem>
 #include <QStandardItemModel>
 #include<QPoint>
+#include<QUdpSocket>
 
 class chat;
 class QListWidget;
@@ -22,16 +23,23 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-    void setUserId(QString uid){
+    void setUserInfo(QString uid, QString uname){
         userId = uid;
+        userName = uname;
         UId = uid;
     }
+    void setUserIp(QString ip){
+        userIp = ip;
+    }
+
     QString getUserId(){
         return userId;
     }
+    void sendNewParticipant();
     void refresh(){
         on_refresh_clicked();
     }
+    void updateMsg();
 protected:
     void closeEvent(QCloseEvent *event);
 private slots:
@@ -46,8 +54,10 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+    QUdpSocket *udpSocket;
+    qint16 port; // udpSocket连接的端口号
     chat *dw;
-    QString userId;
+    QString userId, userIp, userName;// 存储当前账号id,ip
     QStringList *userImgId;// 存储好友头像id
     chatDlgStack *chatStack;
     int rawCount, dlgCount;

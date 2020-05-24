@@ -14,7 +14,7 @@
 #include <QtCore/QCoreApplication>
 #include<QAction>
 
-QString UId="", UName="";
+QString UId="", UName="", UIp="";
 QSqlDatabase getDB(){
     QSqlDatabase dataBase;
     dataBase=QSqlDatabase::addDatabase("QMYSQL3");
@@ -23,10 +23,6 @@ QSqlDatabase getDB(){
     dataBase.setPassword("223412");
     dataBase.setDatabaseName("test");
     dataBase.open();
-//    db.setDatabaseName("database.db");
-//    if(!dataBase.open()) {
-//        QMessageBox::warning(0,QString("警告"),QString("打开数据库失败！"),QMessageBox::Ok);
-//    }
     return dataBase;
 }
 MainWindow::MainWindow(QWidget *parent) :
@@ -65,7 +61,15 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->createGroup,SIGNAL(triggered(bool)),this,SLOT(createGp()));
     connect(ui->reSign,SIGNAL(triggered(bool)),this,SLOT(on_quit_clicked()));
 
-    dlgCount =0;
+    // 放到构造函数中，防止每次和一个新的好友聊天都创建一个新的对象
+    chatStack = new chatDlgStack(this);
+    // 发送新用户登录信号
+    udpSocket = new QUdpSocket(this);
+    port = 45456;
+    udpSocket->bind(port,QUdpSocket::ShareAddress
+                    | QUdpSocket::ReuseAddressHint);
+
+//    dlgCount =0;
     userImgId = new QStringList;
 }
 
@@ -73,12 +77,28 @@ MainWindow::~MainWindow()
 {
     delete ui;
 }
+// 广播上线信息
+void MainWindow::sendNewParticipant(){
+    QByteArray data;
+//    QDataStream out(&data,QIODevice::WriteOnly);
+    QString type ="1";
+    QString localHostName = "QHostInfo::localHostName()";
+    QString UserName = "getIP()";
+    data.append(type).append(localHostName).append(UserName);
+//    out << type << UserName << localHostName;
+    qDebug()<<"\nmainwindow userId"<< userIp << userId<<endl;
+//    out << userIp << userId;
+//    QString dat; dat.prepend(data);
+    qDebug()<<"sendNewParticipant data: "<<data<<data.length()<<endl;
+    qint64 res =  udpSocket->writeDatagram(data,data.length(),QHostAddress::Broadcast, port);
+    if(res == -1){
+        QMessageBox::warning(this,QString("警告"),QString("广播消息失败！"),QMessageBox::Ok);
+    }
+}
+
 void MainWindow::customMenupPop(QPoint pos){
-//    QTableWidgetItem* selecteditem = ui->tableWidget->itemAt(pos) ;
-//    QString finalStr = selecteditem->text();
     QMenu* menu = new QMenu(this);
     QAction *action = new QAction(tr("&Open Directory"), this);
-//    action->setData(finalStr);
     menu->addAction(action);
     menu->popup(ui->tableWidget->viewport()->mapToGlobal(pos));
     connect(action, SIGNAL(triggered(bool)), this, SLOT(updateGpInf));
@@ -97,11 +117,10 @@ void MainWindow::on_addFriendGroup_clicked()
 
 void MainWindow::on_openDialogWindow_clicked()
 {
-    if(dlgCount == 0){
-        // 放到构造函数中，防止每次和一个新的好友聊天都创建一个新的对象
-        chatStack = new chatDlgStack(this);
-        dlgCount++;
-    }
+//    if(dlgCount == 0){
+
+//        dlgCount++;
+//    }
     if(ui->tableWidget->selectedItems().isEmpty()){
         QMessageBox::warning(0,QString("警告"),QString("你没有选择群聊或好友！"),QMessageBox::Ok);
         return;
@@ -111,12 +130,11 @@ void MainWindow::on_openDialogWindow_clicked()
         QString uid = items.at(1)->text();
         QString name = items.at(2)->text();
         QString img = userImgId->at(row);
+        chatStack->setMeInf(userId, userName);
         chatStack->addChatDlg(uid, name, img);
         chatStack->show();
     }
-//    chat *ca = new chat(this);
-//    ca->show();
-//    on_refresh_clicked();
+
 }
 
 void MainWindow::on_refresh_clicked()
@@ -164,6 +182,7 @@ void MainWindow::on_refresh_clicked()
         ui->tableWidget->setItem(i, 0, new QTableWidgetItem(tr("群聊")));
         ui->tableWidget->setItem(i, 1, new QTableWidgetItem(QIcon(QString(":/images/%1").arg(gImg)), gid));
         ui->tableWidget->setItem(i, 2, new QTableWidgetItem(gName));
+
         userImgId->append(gImg);
         i++;
     }
@@ -197,5 +216,15 @@ void MainWindow::closeEvent(QCloseEvent *){
     query.finish();
     query.clear();
     getDB().close();
+    QString type = "2";
+    QString localHostName = "closeEvent";
+    QString UserName = "closeEvent";
+    QByteArray data;
+    data.append(type).append(localHostName).append(UserName);
+
+    qint64 res =  udpSocket->writeDatagram(data,data.length(),QHostAddress::Broadcast, port);
+    if(res == -1){
+        QMessageBox::warning(this,QString("警告"),QString("广播消息失败！"),QMessageBox::Ok);
+    }
     this->close();
 }

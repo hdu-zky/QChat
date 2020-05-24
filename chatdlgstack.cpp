@@ -27,6 +27,33 @@ chatDlgStack::~chatDlgStack()
     delete userNameList;
     delete userIdList;
 }
+// // 用户登陆信号下发
+//void chatDlgStack::newParticipant(QString ipAddress, QString  recvUserId){
+//    // 查找所有子窗口
+//    for(int i=0; i<ui->stackedWidget->count();i++){
+//        for(int j=0;j<userIdList->length();j++){
+//            // 如果当前打开的子窗口有新登陆的好友
+//            if(userIdList->at(j) == recvUserId){
+//                // 发送新用户登录信号给子窗口
+//                emit newParticipantSignal(ipAddress, recvUserId);
+//            }
+//        }
+//    }
+//}
+// // 用户下线信号下发
+//void chatDlgStack::participantLeft(QString recvUserId){
+//    // 查找所有子窗口
+//    for(int i=0; i<ui->stackedWidget->count();i++){
+//        for(int j=0;j<userIdList->length();j++){
+//            // 如果当前打开的子窗口有退出登陆的好友
+//            if(userIdList->at(j) == recvUserId){
+//                // 发送好友下线信号给子窗口
+//                emit participantLeftSignal(recvUserId);
+//            }
+//        }
+//    }
+//}
+
 void chatDlgStack::updateCurrentIndex(int index){
     // 更新当前活动页窗口序号
     currentIndex = index;
@@ -64,9 +91,14 @@ void chatDlgStack::insertList(QString userImg, QString userName){
 // stackwidget插入窗口
 void chatDlgStack::insertDlg(QString userId, QString userName, QString userImg){
     chatDlg *chat = new chatDlg(ui->stackedWidget);
+
     // 绑定聊天子窗口的关闭窗口信号，进行子窗口关闭
     connect(chat,SIGNAL(closeSignal()),this,SLOT(closeCurChatDlg()));
-    chat->setUserInfo(userId, userName, userImg);
+    // 绑定聊天窗口的用户登陆下线信号
+//    connect(this, SIGNAL(newParticipantSignal(QString, QString)), chat, SLOT(newParticipant(QString, QString)));
+//    connect(this, SIGNAL(participantLeftSignal(QString)), chat, SLOT(participantLeft(QString)));
+    qDebug()<<"chatDlgStack::insertDlg meId"<<meId<<endl;
+    chat->setUserInfo(meId, meName, userId, userName, userImg);
     ui->stackedWidget->addWidget(chat);
     ui->stackedWidget->setCurrentIndex(ui->stackedWidget->count()-1);
 }
