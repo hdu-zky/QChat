@@ -29,7 +29,6 @@ SOURCES += \
     login.cpp \
     register.cpp \
     autoLogin.cpp \
-    chat.cpp \
     findgroup.cpp \
     filetrans.cpp \
     updateinfo.cpp \
@@ -37,6 +36,7 @@ SOURCES += \
     filerecv.cpp \
     chatdlg.cpp \
     chatdlgstack.cpp \
+    resetpwd.cpp
 
 HEADERS += \
         hosturl.h\
@@ -44,9 +44,7 @@ HEADERS += \
     login.h \
     register.h \
     connecttosql.h \
-    user.h \
     autoLogin.h \
-    chat.h \
     findgroup.h \
     filetrans.h \
     updateinfo.h \
@@ -54,20 +52,22 @@ HEADERS += \
     filerecv.h \
     chatdlg.h \
     chatdlgstack.h \
+    resetpwd.h \
+    openDB.h
 
 FORMS += \
         mainwindow.ui \
     login.ui \
     register.ui \
     autologin.ui \
-    chat.ui \
     findgroup.ui \
     filetrans.ui \
     updateinfo.ui \
     creategroup.ui \
     filerecv.ui \
     chatdlg.ui \
-    chatdlgstack.ui
+    chatdlgstack.ui \
+    resetpwd.ui
 
 RESOURCES += \
     images.qrc

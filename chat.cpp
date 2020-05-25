@@ -1,6 +1,6 @@
 #include "chat.h"
 #include "ui_chat.h"
-#include "user.h"
+#include "openDB.h"
 #include "filetrans.h"
 
 #include <QListWidget>

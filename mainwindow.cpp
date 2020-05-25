@@ -14,7 +14,6 @@
 #include <QtCore/QCoreApplication>
 #include<QAction>
 
-QString UId="", UName="", UIp="";
 QSqlDatabase getDB(){
     QSqlDatabase dataBase;
     dataBase=QSqlDatabase::addDatabase("QMYSQL3");
@@ -127,11 +126,21 @@ void MainWindow::on_openDialogWindow_clicked()
     }else{
         QList<QTableWidgetItem*> items = ui->tableWidget->selectedItems();
         int row=ui->tableWidget->row(items.at(1));//获取选中的行
+        QString typeName = items.at(0)->text(), type;
         QString uid = items.at(1)->text();
         QString name = items.at(2)->text();
         QString img = userImgId->at(row);
+        QString msg = items.at(3)->text();
+        if( msg != "0"){
+            ui->tableWidget->item(row,3)->setText("0");
+        }
         chatStack->setMeInf(userId, userName);
-        chatStack->addChatDlg(uid, name, img);
+        if(typeName == "好友"){
+            type = "0";
+        }else{
+            type = "1";
+        }
+        chatStack->addChatDlg(type, uid, name, img);
         chatStack->show();
     }
 
@@ -154,23 +163,46 @@ void MainWindow::on_refresh_clicked()
     QString uid , uName, uImg;
     int i=0;
     // 开始插入数据
-    ui->tableWidget->insertRow(i);
-    ui->tableWidget->setItem(i, 0, new QTableWidgetItem(tr("好友")));
-    ui->tableWidget->setItem(i, 1, new QTableWidgetItem(QIcon(QString(":/images/%1").arg(1)), "123123"));
-    ui->tableWidget->setItem(i, 2, new QTableWidgetItem("peter-Pc"));
-    userImgId->append("1");
-    i++;
     while(query.next()){
         uid = query.value(0).toString();
         uName = query.value(1).toString();
         uImg = query.value(2).toString();
         ui->tableWidget->insertRow(i);
-        ui->tableWidget->setItem(i, 0, new QTableWidgetItem(tr("好友")));
-        ui->tableWidget->setItem(i, 1, new QTableWidgetItem(QIcon(QString(":/images/%1").arg(uImg)), uid));
+        ui->tableWidget->setItem(i, 0, new QTableWidgetItem(QIcon(QString(":/images/%1").arg(uImg)),tr("好友")));
+        ui->tableWidget->setItem(i, 1, new QTableWidgetItem(uid));
         ui->tableWidget->setItem(i, 2, new QTableWidgetItem(uName));
         userImgId->append(uImg);
         i++;
     }
+    QString senderId;
+    // 列表展示未读消息
+    for(int i=0; i<userImgId->length(); i++){
+        senderId = ui->tableWidget->item(i, 1)->text();
+        sql = QString("select count(recvId) from message where senderId = '%1' and  recvId = '%2'").arg(senderId).arg(userId);
+
+//        qDebug()<<"sql: "<<sql<<endl;
+        if(!query.exec(sql)){
+            QMessageBox::warning(this, tr("警告"),tr("获取数据失败！"),QMessageBox::Ok);
+            return;
+        }
+        int count =0;
+        while(query.next()){
+            count = query.value(0).toInt();
+        }
+        // 这里 ui->tableWidget->item(i, 3)->setForeground(Qt::red);
+        // ui->tableWidget->item(i, 3)->setText(QString("%1").arg(count));两句为甚么会出错
+        //        if(count >0 ){
+        //            ui->tableWidget->item(i, 3)->setForeground(Qt::red);
+        //        }
+        //        ui->tableWidget->item(i, 3)->setText(QString("%1").arg(count));
+
+        ui->tableWidget->setItem(i, 3, new QTableWidgetItem(QString("%1").arg(count)));
+        if(count >0 ){
+            ui->tableWidget->item(i, 3)->setForeground(Qt::red);
+        }
+    }
+
+
     sql = QString("select groupsid, groupsname, headimg from groups where groupsid in(select group_id from ingroup where g_uid = '%1')").arg(userId);
     query.exec(sql);
     QString gid , gName, gImg;
@@ -179,8 +211,8 @@ void MainWindow::on_refresh_clicked()
         gName = query.value(1).toString();
         gImg = query.value(2).toString();
         ui->tableWidget->insertRow(i);
-        ui->tableWidget->setItem(i, 0, new QTableWidgetItem(tr("群聊")));
-        ui->tableWidget->setItem(i, 1, new QTableWidgetItem(QIcon(QString(":/images/%1").arg(gImg)), gid));
+        ui->tableWidget->setItem(i, 0, new QTableWidgetItem(QIcon(QString(":/images/%1").arg(gImg)), tr("群聊")));
+        ui->tableWidget->setItem(i, 1, new QTableWidgetItem(gid));
         ui->tableWidget->setItem(i, 2, new QTableWidgetItem(gName));
 
         userImgId->append(gImg);
@@ -192,12 +224,14 @@ void MainWindow::on_refresh_clicked()
 }
 void MainWindow::updateInf(){
     updateInfo *up = new updateInfo(this);
+    up->setUserId(userId);
     up->show();
     on_refresh_clicked();
 }
 
 void MainWindow::createGp(){
     createGroup *cp = new createGroup(this);
+    cp->setUserId(userId);
     cp->show();
     on_refresh_clicked();
 }
@@ -211,7 +245,7 @@ void MainWindow::on_quit_clicked()
 }
 void MainWindow::closeEvent(QCloseEvent *){
     QSqlQuery query(getDB());
-    QString sql = QString("update user set status = '%1' where uid = '%2'").arg(0).arg(UId);
+    QString sql = QString("update user set status = '%1' where uid = '%2'").arg(0).arg(userId);
     query.exec(sql);
     query.finish();
     query.clear();

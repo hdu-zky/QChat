@@ -15,6 +15,9 @@ public:
     explicit updateInfo(QWidget *parent = 0);
     ~updateInfo();
     void Init();
+    void setUserId(QString id){
+        uId = id;
+    }
 
 private slots:
     void on_btn_Quit_clicked();

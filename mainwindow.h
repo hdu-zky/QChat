@@ -1,7 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "user.h"
+#include "openDB.h"
 #include "chatdlgstack.h"
 
 #include <QMainWindow>
@@ -26,7 +26,6 @@ public:
     void setUserInfo(QString uid, QString uname){
         userId = uid;
         userName = uname;
-        UId = uid;
     }
     void setUserIp(QString ip){
         userIp = ip;

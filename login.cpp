@@ -1,21 +1,17 @@
 #include "login.h"
 #include "ui_login.h"
 #include "hosturl.h"
-#include "user.h"
-#include "QString"       // Qt里的字符串类型
-#include "QMessageBox"   // 引入QMessageBox类，用于弹窗
+#include "openDB.h"
 #include "register.h"
 #include "autoLogin.h"
+#include "resetpwd.h"
+
+#include "QString"       // Qt里的字符串类型
+#include "QMessageBox"   // 引入QMessageBox类，用于弹窗
 #include <QDialog>
 #include <QFile>
 #include <QDebug>
-#include <QMovie>
-#include <QJsonParseError>
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QJsonArray>
 #include <QCryptographicHash> // MD5加密库
-#include <QSettings>
 #include <QFileInfo>
 #include <QTimer>
 #include <QHostInfo>
@@ -26,7 +22,7 @@ login::login(QWidget *parent) :
     ui(new Ui::login)
 {
     ui->setupUi(this);
-    this->setFixedSize(400,300);
+    this->setFixedSize(310,270);
 // //    QMovie *movie = new QMovie(this);
 // //    movie->setFileName(":/images/hh");
 // //    ui->lb_gif->setMovie(movie);
@@ -164,9 +160,6 @@ void login::execQuery(){
     QSqlQuery query(getDB());
     QString sql = QString("select uid, userName from user where uid = '%1' and passWord = '%2'").arg(userId).arg(passWord);
     query.exec(sql);
-    UId = query.value(0).toString();
-    UName = query.value(1).toString();
-    UIp = getIPV4();
     if(!query.seek(0)){
         QMessageBox::warning(this,tr("警告"),tr("登陆失败！"), QMessageBox::Ok);
         query.finish();
@@ -215,5 +208,14 @@ void login::on_Register_Button_clicked()
     if(reg.exec() == QDialog::Accepted)
     {
         lg.show();//to do: 返回登陆界面或者直接进入主窗口并显示用户信息
+    }
+}
+
+void login::on_resetPwd_clicked()
+{
+    resetPwd *rp = new resetPwd(this);
+    if(rp->exec() == QDialog::Accepted)
+    {
+        return;//to do: 返回登陆界面或者直接进入主窗口并显示用户信息
     }
 }

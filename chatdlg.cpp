@@ -20,7 +20,7 @@ chatDlg::chatDlg(QWidget *parent) :
     ui->send->setEnabled(false);
     ui->textEdit->setFocusPolicy(Qt::StrongFocus);
     ui->textBrowser->setFocusPolicy(Qt::NoFocus);
-    ui->lb_spoint->setStyleSheet("border: 1px solid;border-radius: 4px;");
+//    ui->lb_spoint->setStyleSheet("border: 1px solid;border-radius: 4px;");
     ui->lb_name->setStyleSheet("color: blue;");
     ui->textEdit->setStyleSheet("background: #FFFFF6;border: 1px solid;border-radius:10px;border-color: #F8F0DD;");
     ui->textBrowser->setStyleSheet("background: #FFFFF6;border: 1px solid;border-radius:10px;border-color: #F8F0DD;");
@@ -45,6 +45,33 @@ chatDlg::~chatDlg()
 {
     delete ui;
 }
+void chatDlg::unreadMsg(){
+    QSqlQuery query(getDB());
+    QString sql = QString("select content, sendTime from message where senderId = '%1' and recvId = '%2'").arg(userId).arg(meId);
+    query.exec(sql);
+    QString content, sendTime;
+    if(query.size()){
+        ui->textBrowser->setTextColor(Qt::red);
+        ui->textBrowser->append(QString("以下为%1条未读消息").arg(query.size()));
+    }
+    while(query.next()){
+        content = query.value(0).toString();
+        sendTime = query.value(1).toString();
+        ui->textBrowser->setTextColor(Qt::darkGray);
+        ui->textBrowser->setCurrentFont(QFont("微软雅黑",13));
+        ui->textBrowser->append( "["+userName+"]" + "("+userId+")" + QString("%1").arg(sendTime));
+        ui->textBrowser->setTextColor(Qt::darkGreen);
+        ui->textBrowser->setCurrentFont(QFont("幼圆",12));
+        ui->textBrowser->append(content);
+    }
+    // 读取完成后删除记录
+//    sql = QString("delete from message where senderId = '%1' and recvId = '%2'").arg(userId).arg(meId);
+//    query.exec(sql);
+    query.finish();
+    query.clear();
+    getDB().close();
+}
+
 // 接收udp消息
 void chatDlg::processPendingDatagrams()
 {
@@ -255,9 +282,13 @@ void chatDlg::setUserInfo(QString mid, QString mname, QString uid, QString uname
         usersignature = query.value(3).toString();
         useripAddress = query.value(4).toString();
     }
-    ui->checkInfo->setText(QString("%1(%2)").arg(uname).arg(uid));
+//    ui->checkInfo->setText(QString("%1(%2)").arg(uname).arg(uid));
     ui->lb_img->setStyleSheet(QString("border-image: url(':/images/%1')").arg(imgId));
     ui->lb_name->setText(uname);
+    qDebug()<<"chatType"<<chatType<<endl;
+    if(chatType != "0"){
+        return;
+    }
     if(userstatus == "1"){
         ui->lb_status->setText(QString("在线"));
         ui->lb_spoint->setStyleSheet("background-color: #92bd6c");
@@ -388,7 +419,7 @@ void chatDlg::on_save_clicked()
     if(ui->textBrowser->document()->isEmpty()){
         QMessageBox::warning(this, tr("警告"), tr("聊天记录为空！"),QMessageBox::Ok);
     }else{
-        QString fileName = QFileDialog::getSaveFileName(this, tr("保存为"), QString("%1-%2").arg(UId).arg(userId),//将用户id和好友id作为文件名
+        QString fileName = QFileDialog::getSaveFileName(this, tr("保存为"), QString("%1-%2").arg(meId).arg(userId),//将用户id和好友id作为文件名
                                                         tr("Html文件(*.html);;文本(*.rtf);;所有类型(*.*)"));
         if(!fileName.isEmpty()){
             QFile file(fileName);
@@ -409,3 +440,11 @@ void chatDlg::on_clear_clicked()
     ui->textBrowser->clear();
 }
 
+
+void chatDlg::on_checkInfo_clicked()
+{
+    if(chatType == "0"){
+        // 私聊
+
+    }
+}

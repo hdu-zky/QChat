@@ -1,6 +1,6 @@
 #include "findgroup.h"
 #include "ui_findgroup.h"
-#include "user.h"
+#include "openDB.h"
 #include <QDateTime>
 #include<QMessageBox>
 #include<QDebug>

@@ -1,7 +1,7 @@
 #ifndef CREATEGROUP_H
 #define CREATEGROUP_H
 
-#include"user.h"
+#include"openDB.h"
 #include <QDialog>
 
 namespace Ui {
@@ -15,6 +15,9 @@ class createGroup : public QDialog
 public:
     explicit createGroup(QWidget *parent = 0);
     ~createGroup();
+    void setUserId(QString uId){
+        userId = uId;
+    }
 
 private slots:
     void on_btn_Quit_clicked();
@@ -26,6 +29,7 @@ private slots:
 
 private:
     Ui::createGroup *ui;
+    QString userId;
     int imgId;
     QString img;
 };

@@ -32,6 +32,8 @@ private slots:
     void on_Login_Button_clicked();
     void on_Register_Button_clicked();
     void changeSaved(); // 密码被编辑,则取消从注册表获得的密码,改用当前编辑的密码
+    void on_resetPwd_clicked();
+
 private:
     Ui::login *ui;
     int tryCount=0; // 试错次数

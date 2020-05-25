@@ -1,7 +1,7 @@
 #ifndef CHATDLG_H
 #define CHATDLG_H
 
-#include"user.h"
+#include"openDB.h"
 #include"filetrans.h"
 #include"filerecv.h"
 
@@ -27,9 +27,14 @@ public:
     void setUserName(QString uname){
         userName = uname;
     }
+    void setChatType(QString type){
+        chatType = type;
+    }
+
     void setUserInfo(QString mid, QString mname, QString uid, QString uname, QString userImg);
     QString getUserName();
     QString getMessage();
+    void unreadMsg();
 //    void newParticipant(QString ipAddress, QString  recvUserId);
 //    void participantLeft(QString recvUserId);
 
@@ -63,6 +68,8 @@ private slots:
     void on_font_currentFontChanged(const QFont &f);
     void on_fontSize_currentIndexChanged(const QString &arg1);
 
+    void on_checkInfo_clicked();
+
 private:
     Ui::chatDlg *ui;
     int rawCount; // 记录打开窗口的个数
@@ -70,7 +77,7 @@ private:
     // 保存当前对话窗口的好友个人信息
     QString userId, userName;
     QString userimgId, useremail, usertel, userstatus, usersignature, useripAddress;
-
+    QString chatType;
     QUdpSocket *udpSocket;
     qint16 port;
     QString fileName;

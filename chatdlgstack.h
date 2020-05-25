@@ -15,7 +15,7 @@ public:
     explicit chatDlgStack(QWidget *parent = 0);
     ~chatDlgStack();
 
-    void addChatDlg(QString userId, QString userName, QString userImg); // 供外部调用创建新窗口
+    void addChatDlg(QString type, QString userId, QString userName, QString userImg); // 供外部调用创建新窗口
     void setMeInf(QString mid, QString uname){
         meId = mid;
         meName = uname;
@@ -29,7 +29,7 @@ public:
 //    void participantLeft(QString recvUserId);
 
     void insertList(QString userImg,QString userName); // listwidget添加项
-    void insertDlg(QString userId, QString userName, QString userImg); // stackwidget插入窗口
+    void insertDlg(QString type, QString userId, QString userName, QString userImg); // stackwidget插入窗口
 signals:
 //    void newParticipantSignal(QString ipAddress, QString  recvUserId);
 //    void participantLeftSignal(QString recvUserId);

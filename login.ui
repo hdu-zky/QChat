@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>310</width>
+    <height>270</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -54,8 +54,8 @@
   <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
-     <x>52</x>
-     <y>33</y>
+     <x>20</x>
+     <y>20</y>
      <width>271</width>
      <height>231</height>
     </rect>
@@ -204,6 +204,19 @@
         </property>
         <property name="text">
          <string>注册</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="resetPwd">
+        <property name="font">
+         <font>
+          <family>微软雅黑</family>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>忘记密码?</string>
         </property>
        </widget>
       </item>

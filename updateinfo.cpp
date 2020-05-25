@@ -1,6 +1,6 @@
 #include "updateinfo.h"
 #include "ui_updateinfo.h"
-#include "user.h"
+#include "openDB.h"
 #include<QMessageBox>
 #include <QListWidget>
 #include <QPushButton>
@@ -14,7 +14,6 @@ updateInfo::updateInfo(QWidget *parent) :
     ui->setupUi(this);
     this->setFixedSize(310,290);
     setWindowFlags(windowFlags()&~Qt::WindowContextHelpButtonHint);
-    uId =UId;
     Init();
 }
 

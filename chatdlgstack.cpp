@@ -59,7 +59,7 @@ void chatDlgStack::updateCurrentIndex(int index){
     currentIndex = index;
 }
 // 添加新窗口
-void chatDlgStack::addChatDlg(QString userId, QString userName, QString userImg){
+void chatDlgStack::addChatDlg(QString type, QString userId, QString userName, QString userImg){
     // 查找是否已经打开和userName对应的聊天窗口
     bool flag = false;
     for (int i=0; i<userNameList->length(); i++) {
@@ -74,7 +74,7 @@ void chatDlgStack::addChatDlg(QString userId, QString userName, QString userImg)
         insertList(userImg, userName);
         userNameList->append(userName);
         userIdList->append(userId);
-        insertDlg(userId, userName, userImg);
+        insertDlg(type, userId, userName, userImg);
         updateCurrentIndex(ui->stackedWidget->currentIndex());
     }
 }
@@ -83,13 +83,13 @@ void chatDlgStack::insertList(QString userImg, QString userName){
     QListWidgetItem *item = new QListWidgetItem(QIcon(QString(":/images/%1").arg(userImg)),userName);
     item->setSizeHint(QSize(110, 36));  //每次改变Item的高度
 //    item->setForeground(Qt::darkBlue);
-    item->setFont(QFont("微软雅黑",12));
+    item->setFont(QFont("微软雅黑",11));
     item->setBackgroundColor(QColor(245,255,250));
     ui->listWidget->addItem(item);
     ui->listWidget->setCurrentRow(ui->listWidget->count()-1);
 }
 // stackwidget插入窗口
-void chatDlgStack::insertDlg(QString userId, QString userName, QString userImg){
+void chatDlgStack::insertDlg(QString type, QString userId, QString userName, QString userImg){
     chatDlg *chat = new chatDlg(ui->stackedWidget);
 
     // 绑定聊天子窗口的关闭窗口信号，进行子窗口关闭
@@ -98,7 +98,10 @@ void chatDlgStack::insertDlg(QString userId, QString userName, QString userImg){
 //    connect(this, SIGNAL(newParticipantSignal(QString, QString)), chat, SLOT(newParticipant(QString, QString)));
 //    connect(this, SIGNAL(participantLeftSignal(QString)), chat, SLOT(participantLeft(QString)));
     qDebug()<<"chatDlgStack::insertDlg meId"<<meId<<endl;
+    qDebug()<<"insertDlg type"<<type<<endl;
+    chat->setChatType(type);
     chat->setUserInfo(meId, meName, userId, userName, userImg);
+    chat->unreadMsg();
     ui->stackedWidget->addWidget(chat);
     ui->stackedWidget->setCurrentIndex(ui->stackedWidget->count()-1);
 }
