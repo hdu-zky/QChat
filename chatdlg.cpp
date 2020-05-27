@@ -1,6 +1,8 @@
 #include "chatdlg.h"
 #include "ui_chatdlg.h"
 #include "filetrans.h"
+#include "friendmanage.h"
+#include "groupmanage.h"
 
 #include <QListWidget>
 #include <QDateTime>
@@ -35,17 +37,23 @@ chatDlg::chatDlg(QWidget *parent) :
     port = 45456;
     udpSocket->bind(port,QUdpSocket::ShareAddress
                     | QUdpSocket::ReuseAddressHint);
-    connect(udpSocket,SIGNAL(readyRead()),this,SLOT(processPendingDatagrams()));
+    connect(udpSocket,SIGNAL(readyRead()),this,SLOT(pendingDatagrams()));
 
     server = new fileTrans(this);
     connect(server,SIGNAL(sendFileName(QString)),this,SLOT(sentFileName(QString)));
+
+    useripAddress = "127.0.0.1";
 }
 
 chatDlg::~chatDlg()
 {
     delete ui;
 }
+// 查找展示未读消息
 void chatDlg::unreadMsg(){
+    if(chatType == "1"){
+        return;
+    }
     QSqlQuery query(getDB());
     QString sql = QString("select content, sendTime from message where senderId = '%1' and recvId = '%2'").arg(userId).arg(meId);
     query.exec(sql);
@@ -65,15 +73,21 @@ void chatDlg::unreadMsg(){
         ui->textBrowser->append(content);
     }
     // 读取完成后删除记录
-//    sql = QString("delete from message where senderId = '%1' and recvId = '%2'").arg(userId).arg(meId);
-//    query.exec(sql);
+    sql = QString("delete from message where senderId = '%1' and recvId = '%2'").arg(userId).arg(meId);
+    if(!query.exec(sql)){
+        if(!QSqlDatabase::database().commit()){
+            QSqlDatabase::database().rollback(); // 回滚
+        }
+        QMessageBox::warning(this,tr("警告"), tr("消息删除失败！"),QMessageBox::Ok);
+        return;
+    }
     query.finish();
     query.clear();
     getDB().close();
 }
 
 // 接收udp消息
-void chatDlg::processPendingDatagrams()
+void chatDlg::pendingDatagrams()
 {
     while(udpSocket->hasPendingDatagrams())
     {
@@ -87,19 +101,39 @@ void chatDlg::processPendingDatagrams()
         // 读入消息类型数据
         // in>>后面如果为QString，则表示读取一个知道出现'\0'的字符串
         in >> messageType;
-        QString userName,ipAddress,message,recvUserId;
+        QString userName,ipAddress,message,sendUserId,recvUserId, chatTypeName;
         QString time = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
         switch(messageType){
         case Message:{
-            in >>userName >>ipAddress >>message>>recvUserId;
-            qDebug()<<"chatDlg::processPendingDatagrams message: "
-                   <<userName<<ipAddress<<recvUserId<<userId<<endl;
-            if(recvUserId == userId){
-                ui->textBrowser->setTextColor(Qt::blue);
-                ui->textBrowser->setCurrentFont(QFont("微软雅黑",13));
-                ui->textBrowser->append("[" +userName+"]"+ "("+userId+")" + time);
-                ui->textBrowser->setCurrentFont(QFont("微软雅黑",12));
-                ui->textBrowser->append(message);
+            in >>userName >>ipAddress >>message>>sendUserId>>recvUserId>>chatTypeName;
+            qDebug()<<"chatDlg::pendingDatagrams message: "
+                   <<userName<<ipAddress<<sendUserId<<recvUserId<<endl;
+            qDebug()<<"userId: meId"<<userId<<meId;
+            bool flag =false;
+            // 如果是发送方id等于当前账号id，则消息已显示，不在重复显示
+            if(sendUserId == meId){
+                return;
+            }
+            // 当是好友私聊时
+            if(chatTypeName == '0'){
+                // 如果发送发id等于当前对话窗口id
+                if(sendUserId == userId){
+                    ui->textBrowser->setTextColor(Qt::blue);
+                    ui->textBrowser->setCurrentFont(QFont("微软雅黑",13));
+                    ui->textBrowser->append("[" +userName+"]"+ "("+userId+")" + time);
+                    ui->textBrowser->setCurrentFont(QFont("微软雅黑",12));
+                    ui->textBrowser->append(message);
+                    flag =true;
+                }
+            }else{
+                // 如果是群聊，接收方id等于当前对话窗口id
+                if(userId == recvUserId && !flag){
+                    ui->textBrowser->setTextColor(Qt::blue);
+                    ui->textBrowser->setCurrentFont(QFont("微软雅黑",13));
+                    ui->textBrowser->append("[" +userName+"]"+ "("+sendUserId+")" + time);
+                    ui->textBrowser->setCurrentFont(QFont("微软雅黑",12));
+                    ui->textBrowser->append(message);
+                }
             }
             break;
         }
@@ -119,7 +153,7 @@ void chatDlg::processPendingDatagrams()
             in >>userName >> ipAddress;
             QString clientAddress,fileName;
             in >> clientAddress >> fileName;
-            qDebug()<<"\nchatDlg::processPendingDatagrams FileName: "<<"userName"<<userName<<endl;
+            qDebug()<<"\nchatDlg::pendingDatagrams FileName: "<<"userName"<<userName<<endl;
             qDebug()<<"ipAddress: "<<ipAddress<<"clientAddress"<<clientAddress<<"fileName"<<fileName<<endl;
             hasPendingFile(userName,ipAddress,clientAddress,fileName);
             break;
@@ -182,9 +216,9 @@ void chatDlg::sendMessage(MessageType type, QString serverAddress){
             break;
         }
         case Message :{
-                // 写入发送目标id
-                out << address << getMessage()<< meId;
-                qDebug()<<"Message useripAddress: "<<address<<useripAddress<<meId<<endl;
+                // 写入发送目标id in >>userName >>ipAddress >>message>>recvUserId;
+                out << address << getMessage()<< meId<<userId<<chatType;
+                qDebug()<<"Message useripAddress: "<<address<<useripAddress<<meId<<userId<<endl;
                 break;
 
             }
@@ -337,6 +371,9 @@ void chatDlg::on_send_clicked()
         QString sql, msg = ui->textEdit->toPlainText();
         sql = QString("insert into message (senderId, recvId, content, sendTime, state) values('%1', '%2', '%3', '%4', '%5')").arg(meId).arg(userId).arg(msg).arg(time).arg('1');
         if(!(query.exec(sql))){
+            if(!QSqlDatabase::database().commit()){
+                QSqlDatabase::database().rollback(); // 回滚
+            }
             QMessageBox::warning(this, tr("警告"),tr("消息发送失败"),QMessageBox::Ok);
             return;
         }
@@ -440,11 +477,25 @@ void chatDlg::on_clear_clicked()
     ui->textBrowser->clear();
 }
 
-
+// 查看详细信息
 void chatDlg::on_checkInfo_clicked()
 {
     if(chatType == "0"){
-        // 私聊
-
+        // 好友信息
+        friendManage *fm = new friendManage(this);
+        connect(fm, SIGNAL(deleteFriend()), this, SLOT(hasDel()));
+        fm->setMeId(meId, userId);
+        fm->initInfo();
+        fm->show();
+    }else if(chatType == "1"){
+        // 群聊信息
+        groupManage *gm = new groupManage(this);
+        connect(gm, SIGNAL(quitGroup()), this, SLOT(hasDel()));
+        gm->setId(meId, userId);
+        gm->initInfo();
+        gm->show();
     }
+}
+void chatDlg::hasDel(){
+    this->on_close_clicked();
 }

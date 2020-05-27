@@ -36,7 +36,9 @@ SOURCES += \
     filerecv.cpp \
     chatdlg.cpp \
     chatdlgstack.cpp \
-    resetpwd.cpp
+    resetpwd.cpp \
+    friendmanage.cpp \
+    groupmanage.cpp
 
 HEADERS += \
         hosturl.h\
@@ -53,7 +55,9 @@ HEADERS += \
     chatdlg.h \
     chatdlgstack.h \
     resetpwd.h \
-    openDB.h
+    openDB.h \
+    friendmanage.h \
+    groupmanage.h
 
 FORMS += \
         mainwindow.ui \
@@ -67,7 +71,9 @@ FORMS += \
     filerecv.ui \
     chatdlg.ui \
     chatdlgstack.ui \
-    resetpwd.ui
+    resetpwd.ui \
+    friendmanage.ui \
+    groupmanage.ui
 
 RESOURCES += \
     images.qrc

@@ -172,7 +172,13 @@ void login::execQuery(){
         writeSettings();
         //更新用户登录IP和在线状态
         sql = QString("update user set ipAddress = '%1', status = '1' where uid = '%2'").arg(getIPV4()).arg(userId);
-        query.exec(sql);
+        if(!query.exec(sql)){
+            if(!QSqlDatabase::database().commit()){
+                QSqlDatabase::database().rollback(); // 回滚
+            }
+            QMessageBox::warning(this,tr("警告"), tr("更新用户登录IP和在线状态失败！"),QMessageBox::Ok);
+            return;
+        }
         query.finish();
         query.clear();
         getDB().close();

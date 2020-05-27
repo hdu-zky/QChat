@@ -53,7 +53,7 @@ private slots:
     // 控制发送按钮的可用
     void enableSendBtn();
     // 有数据到达时分析处理
-    void processPendingDatagrams();
+    void pendingDatagrams();
     // 接收文件发送端发送的文件名
     void sentFileName(QString);
     void on_send_clicked();
@@ -69,6 +69,7 @@ private slots:
     void on_fontSize_currentIndexChanged(const QString &arg1);
 
     void on_checkInfo_clicked();
+    void hasDel();
 
 private:
     Ui::chatDlg *ui;

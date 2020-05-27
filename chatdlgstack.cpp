@@ -9,7 +9,6 @@ chatDlgStack::chatDlgStack(QWidget *parent) :
     ui->setupUi(this);
     setWindowFlags(windowFlags()& ~Qt::WindowMaximizeButtonHint & ~Qt::WindowContextHelpButtonHint);
     connect(ui->listWidget,SIGNAL(currentRowChanged(int)),ui->stackedWidget,SLOT(setCurrentIndex(int)));
-    connect(ui->listWidget,SIGNAL(currentRowChanged(int)),this,SLOT(updateCurrentIndex(int)));
     ui->listWidget->setCurrentRow(0);
     // 如果所有图标大小大于28x28则设置起效
     // 设置所有图标大小
@@ -17,65 +16,28 @@ chatDlgStack::chatDlgStack(QWidget *parent) :
     ui->listWidget->setStyleSheet("QListWidget{background: #FFFFF6;border: 1px solid;border-radius:10px;border-color: #F8F0DD;}"
                                   "QListWidget::item{ background: #F5FFFA;border:1px solid;border-radius:6px;border-color:#FFFAF0;}"
                                   "QListWidget::item:selected { background-color:transparent;color :blue;}");
-    userIdList = new QStringList;
-    userNameList = new QStringList;
+
 }
 
 chatDlgStack::~chatDlgStack()
 {
     delete ui;
-    delete userNameList;
-    delete userIdList;
 }
-// // 用户登陆信号下发
-//void chatDlgStack::newParticipant(QString ipAddress, QString  recvUserId){
-//    // 查找所有子窗口
-//    for(int i=0; i<ui->stackedWidget->count();i++){
-//        for(int j=0;j<userIdList->length();j++){
-//            // 如果当前打开的子窗口有新登陆的好友
-//            if(userIdList->at(j) == recvUserId){
-//                // 发送新用户登录信号给子窗口
-//                emit newParticipantSignal(ipAddress, recvUserId);
-//            }
-//        }
-//    }
-//}
-// // 用户下线信号下发
-//void chatDlgStack::participantLeft(QString recvUserId){
-//    // 查找所有子窗口
-//    for(int i=0; i<ui->stackedWidget->count();i++){
-//        for(int j=0;j<userIdList->length();j++){
-//            // 如果当前打开的子窗口有退出登陆的好友
-//            if(userIdList->at(j) == recvUserId){
-//                // 发送好友下线信号给子窗口
-//                emit participantLeftSignal(recvUserId);
-//            }
-//        }
-//    }
-//}
 
-void chatDlgStack::updateCurrentIndex(int index){
-    // 更新当前活动页窗口序号
-    currentIndex = index;
-}
 // 添加新窗口
 void chatDlgStack::addChatDlg(QString type, QString userId, QString userName, QString userImg){
     // 查找是否已经打开和userName对应的聊天窗口
     bool flag = false;
-    for (int i=0; i<userNameList->length(); i++) {
-        if(userName == userNameList->at(i)){
+    for (int i=0; i<ui->listWidget->count(); i++) {
+        if(userName == ui->listWidget->item(i)->text()){
             ui->listWidget->setCurrentRow(i);
-            updateCurrentIndex(i);
             flag=true;break;
         }
     }
     if(!flag){
         // 没有则创建新的
         insertList(userImg, userName);
-        userNameList->append(userName);
-        userIdList->append(userId);
         insertDlg(type, userId, userName, userImg);
-        updateCurrentIndex(ui->stackedWidget->currentIndex());
     }
 }
 // listwidget添加项
@@ -108,15 +70,10 @@ void chatDlgStack::insertDlg(QString type, QString userId, QString userName, QSt
 // 关闭子窗口
 void chatDlgStack::closeCurChatDlg(){
     // 左侧列表移除子窗口的名字列，右侧栈窗口移除子窗口页面
-    for (int i=0; i<userNameList->length(); i++) {
-        if(ui->listWidget->item(currentIndex)->text() == userNameList->at(i)){
-            userNameList->removeAt(i);
-            userIdList->removeAt(i);
-        }
-    }
-    ui->stackedWidget->removeWidget(ui->stackedWidget->widget(currentIndex));
+
+    ui->stackedWidget->removeWidget(ui->stackedWidget->widget(ui->stackedWidget->currentIndex()));
     // 必须先删除右侧子窗口再删除列表数据，因为列表数据变动与右侧窗口展示相关
-    delete ui->listWidget->item(currentIndex);
+    delete ui->listWidget->item(ui->listWidget->currentRow());
     if(ui->listWidget->count() == 0 && ui->stackedWidget->count() ==0){
         this->close();
     }else{
@@ -124,4 +81,8 @@ void chatDlgStack::closeCurChatDlg(){
         ui->stackedWidget->setCurrentIndex(ui->stackedWidget->count()-1);
         ui->listWidget->setCurrentRow(ui->listWidget->count()-1);
     }
+}
+void chatDlgStack::closeEvent(QCloseEvent *){
+    emit refreshList();
+    this->close();
 }

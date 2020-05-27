@@ -62,6 +62,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // 放到构造函数中，防止每次和一个新的好友聊天都创建一个新的对象
     chatStack = new chatDlgStack(this);
+    connect(chatStack, SIGNAL(refreshList()),this,SLOT(on_refresh_clicked()));
     // 发送新用户登录信号
     udpSocket = new QUdpSocket(this);
     port = 45456;
@@ -102,24 +103,27 @@ void MainWindow::customMenupPop(QPoint pos){
     menu->popup(ui->tableWidget->viewport()->mapToGlobal(pos));
     connect(action, SIGNAL(triggered(bool)), this, SLOT(updateGpInf));
 }
+
 void MainWindow::updateGpInf(){
     qDebug()<<"updateGpInf"<<endl;
 }
-
+// 查找好友群聊
 void MainWindow::on_addFriendGroup_clicked()
 {
     findGroup *fg = new findGroup(this);
-    fg->setUId(userId);
+    connect(fg, SIGNAL(refresh()), this,SLOT(on_refresh_clicked()));
+    fg->setUId(userId, userName);
     fg->show();
     on_refresh_clicked();
 }
-
+// 打开聊天窗口
 void MainWindow::on_openDialogWindow_clicked()
 {
 //    if(dlgCount == 0){
 
 //        dlgCount++;
 //    }
+    qDebug()<<"on_openDialogWindow_clicked"<<endl;
     if(ui->tableWidget->selectedItems().isEmpty()){
         QMessageBox::warning(0,QString("警告"),QString("你没有选择群聊或好友！"),QMessageBox::Ok);
         return;
@@ -143,9 +147,10 @@ void MainWindow::on_openDialogWindow_clicked()
         chatStack->addChatDlg(type, uid, name, img);
         chatStack->show();
     }
+    this->on_refresh_clicked();
 
 }
-
+// 刷新好友列表
 void MainWindow::on_refresh_clicked()
 {
     ui->tableWidget->setRowCount(0);
@@ -215,6 +220,7 @@ void MainWindow::on_refresh_clicked()
         ui->tableWidget->setItem(i, 1, new QTableWidgetItem(gid));
         ui->tableWidget->setItem(i, 2, new QTableWidgetItem(gName));
 
+        ui->tableWidget->setItem(i, 3, new QTableWidgetItem(QString("0")));
         userImgId->append(gImg);
         i++;
     }
@@ -222,13 +228,14 @@ void MainWindow::on_refresh_clicked()
     query.clear();
     getDB().close();
 }
+// 修改个人信息
 void MainWindow::updateInf(){
     updateInfo *up = new updateInfo(this);
     up->setUserId(userId);
     up->show();
     on_refresh_clicked();
 }
-
+// 创建群组
 void MainWindow::createGp(){
     createGroup *cp = new createGroup(this);
     cp->setUserId(userId);
@@ -243,6 +250,7 @@ void MainWindow::on_quit_clicked()
     settings.setValue("autod", 0); // 关闭自动登陆
     qApp->exit(2);
 }
+// 重写关闭事件，增加退出程序时更新用户在线信息
 void MainWindow::closeEvent(QCloseEvent *){
     QSqlQuery query(getDB());
     QString sql = QString("update user set status = '%1' where uid = '%2'").arg(0).arg(userId);

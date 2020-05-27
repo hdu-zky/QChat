@@ -55,21 +55,46 @@ void updateInfo::on_btn_update_clicked()
 {
     QSqlQuery query(getDB());
     QString sql;
+    // 每项对比，有改动则更新数据
     if(userName != ui->input_userName->text()){
         sql = QString("update user set userName = '%1' where uid = '%2'").arg(ui->input_userName->text()).arg(uId);
-        query.exec(sql);
+        if(!query.exec(sql)){
+            if(!QSqlDatabase::database().commit()){
+                QSqlDatabase::database().rollback(); // 回滚
+            }
+            QMessageBox::warning(this,tr("警告"), tr("修改失败！"),QMessageBox::Ok);
+            return;
+        }
     }
     if(email != ui->input_email->text()){
         sql = QString("update user set email = '%1' where uid = '%2'").arg(ui->input_email->text()).arg(uId);
-        query.exec(sql);
+        if(!query.exec(sql)){
+            if(!QSqlDatabase::database().commit()){
+                QSqlDatabase::database().rollback(); // 回滚
+            }
+            QMessageBox::warning(this,tr("警告"), tr("修改失败！"),QMessageBox::Ok);
+            return;
+        }
     }
     if(tel != ui->input_tel->text()){
         sql = QString("update user set tel = '%1' where uid = '%2'").arg(ui->input_tel->text()).arg(uId);
-        query.exec(sql);
+        if(!query.exec(sql)){
+            if(!QSqlDatabase::database().commit()){
+                QSqlDatabase::database().rollback(); // 回滚
+            }
+            QMessageBox::warning(this,tr("警告"), tr("修改失败！"),QMessageBox::Ok);
+            return;
+        }
     }
     if(img != imgId){
         sql = QString("update user set headimg = '%1' where uid = '%2'").arg(imgId).arg(uId);
-        query.exec(sql);
+        if(!query.exec(sql)){
+            if(!QSqlDatabase::database().commit()){
+                QSqlDatabase::database().rollback(); // 回滚
+            }
+            QMessageBox::warning(this,tr("警告"), tr("修改失败！"),QMessageBox::Ok);
+            return;
+        }
     }
     QMessageBox::warning(this,tr("提示"),tr("修改成功！"), QMessageBox::Ok);
 }

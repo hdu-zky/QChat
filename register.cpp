@@ -72,11 +72,17 @@ void Register::on_btn_Register_clicked()
     sql = QString("insert into user (uid,userName,passWord,email,tel,signtime) values('%1','%2', '%3','%4','%5','%6')")
             .arg(uid).arg(userName).arg(MD5).arg(email).arg(tel).arg(time);
     // 使数据库支持中文
-    query.exec(sql);
+    if(!query.exec(sql)){
+        if(!QSqlDatabase::database().commit()){
+            QSqlDatabase::database().rollback(); // 回滚
+        }
+        QMessageBox::warning(this,tr("警告"), tr("注册失败！"),QMessageBox::Ok);
+        return;
+    }
     sql = QString("select * from user where uid = '%1'").arg(uid);
     query.exec(sql);
     if(!query.seek(0)){
-        QMessageBox::warning(this,tr("info"),tr("Register fail"), QMessageBox::Ok);
+        QMessageBox::warning(this,tr("提示"),tr("注册失败！"), QMessageBox::Ok);
         query.finish();
         query.clear();
         dataBase.close();
@@ -85,7 +91,7 @@ void Register::on_btn_Register_clicked()
         query.finish();
         query.clear();
         dataBase.close();
-        QMessageBox::warning(this,tr("info"),tr("Register success"), QMessageBox::Ok);
+        QMessageBox::warning(this,tr("提示"),tr("注册成功！"), QMessageBox::Ok);
         accept();
     }
     return;

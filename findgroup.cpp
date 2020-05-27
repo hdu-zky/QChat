@@ -54,13 +54,28 @@ void findGroup::on_add_clicked()
                     .arg(userId).arg(id).arg(1).arg(time);
             if(query.exec(sql)){
                 QMessageBox::warning(0,QString("提示"),QString("添加成功！你们已经是好友"),QMessageBox::Ok);
+//                ui->add->setEnabled(false);
+                this->close();
+            }else{
+                if(!QSqlDatabase::database().commit()){
+                    QSqlDatabase::database().rollback(); // 回滚
+                }
+                QMessageBox::warning(this,tr("警告"), tr("添加失败！"),QMessageBox::Ok);
                 return;
             }
         }else{
-            sql = QString("insert into ingroup (g_uid, group_id,join_timing,status,role) values('%1','%2', '%3','%4','%5')")
-                    .arg(userId).arg(id).arg(time).arg(1).arg(0);
+            sql = QString("insert into ingroup (g_uid, group_id,join_timing,status,role,userName) values('%1','%2','%3','%4','%5','%6')")
+                    .arg(userId).arg(id).arg(time).arg(1).arg(0).arg(userName);
             if(query.exec(sql)){
+                qDebug()<<"on_add_clicked sql: "<<sql<<endl;
                 QMessageBox::warning(0,QString("提示"),QString("添加成功！你已在群里"),QMessageBox::Ok);
+//                ui->add->setEnabled(false);
+                this->close();
+            }else{
+                if(!QSqlDatabase::database().commit()){
+                    QSqlDatabase::database().rollback(); // 回滚
+                }
+                QMessageBox::warning(this,tr("警告"), tr("添加失败！"),QMessageBox::Ok);
                 return;
             }
         }
@@ -138,4 +153,8 @@ void findGroup::on_comboBox_activated(int index)
 {
     comboIndex = index;
     qDebug()<<"index = "<<index<<endl;
+}
+void findGroup::closeEvent(QCloseEvent *){
+    emit refresh();
+    this->close();
 }

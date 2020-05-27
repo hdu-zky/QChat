@@ -40,11 +40,25 @@ void createGroup::on_btn_create_clicked()
             .arg(groupsId).arg(userId).arg(groupsName).arg(instruct).arg(1).arg(time).arg(imgId);
     sql0 = QString("insert into ingroup (g_uid, group_id,join_timing,status,role) values('%1','%2', '%3','%4','%5')")
             .arg(userId).arg(groupsId).arg(time).arg(1).arg(1);
-    if(query.exec(sql) && query.exec(sql0)){
-        QMessageBox::information(this,tr("提示"),tr("创建群聊成功！"), QMessageBox::Ok);
-        accept();
+    if(!query.exec(sql)){
+        // 插入第一条语句失败
+        if(!QSqlDatabase::database().commit()){
+            QSqlDatabase::database().rollback(); // 回滚
+        }
+        QMessageBox::warning(this,tr("警告"), tr("创建群聊失败！"),QMessageBox::Ok);
+        return;
     }else{
-        QMessageBox::information(this,tr("提示"),tr("创建群聊失败！"), QMessageBox::Ok);
+        // 插入第二条语句成功
+        if(query.exec(sql0)){
+            QMessageBox::information(this,tr("提示"),tr("创建群聊成功！"), QMessageBox::Ok);
+            accept();
+        }else{
+            if(!QSqlDatabase::database().commit()){
+                QSqlDatabase::database().rollback(); // 回滚
+            }
+            QMessageBox::warning(this,tr("警告"), tr("创建群聊失败！"),QMessageBox::Ok);
+            return;
+        }
     }
     query.finish();
     query.clear();

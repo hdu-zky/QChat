@@ -53,6 +53,9 @@ void resetPwd::on_btn_update_clicked()
         QMessageBox::information(this,tr("提示"), tr("密码修改成功！"),QMessageBox::Ok);
         this->accept();
     }else{
+        if(!QSqlDatabase::database().commit()){
+            QSqlDatabase::database().rollback(); // 回滚
+        }
         QMessageBox::warning(this,tr("警告"), tr("密码修改失败！"),QMessageBox::Ok);
         return;
     }

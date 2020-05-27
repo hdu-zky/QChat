@@ -13,11 +13,15 @@ class findGroup : public QDialog
 
 public:
     explicit findGroup(QWidget *parent = 0);
-    void setUId(QString uid){
+    void setUId(QString uid, QString uname){
         userId = uid;
+        userName = uname;
     }
     ~findGroup();
-
+protected:
+    void closeEvent(QCloseEvent *);
+signals:
+    void refresh();
 private slots:
     void on_close_clicked();
     void on_add_clicked();
@@ -30,7 +34,7 @@ private slots:
 
 private:
     Ui::findGroup *ui;
-    QString userId;
+    QString userId, userName;
     int comboIndex;
 };
 
