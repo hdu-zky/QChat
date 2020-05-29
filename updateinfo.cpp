@@ -14,7 +14,7 @@ updateInfo::updateInfo(QWidget *parent) :
     ui->setupUi(this);
     this->setFixedSize(310,290);
     setWindowFlags(windowFlags()&~Qt::WindowContextHelpButtonHint);
-    Init();
+//    Init();
 }
 
 updateInfo::~updateInfo()
@@ -28,6 +28,7 @@ void updateInfo::on_btn_Quit_clicked()
 }
 // 获取个人信息并显示在界面上
 void updateInfo::Init(){
+    qDebug()<<"uId"<<uId<<endl;
     QSqlQuery query(getDB());
     QString sql = QString("select userName, email, tel, headimg from user where uid = '%1'").arg(uId);
     query.exec(sql);

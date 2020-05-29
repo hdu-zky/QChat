@@ -3,13 +3,7 @@
         <file alias="hh">images/1.gif</file>
         <file alias="me">images/me.png</file>
         <file alias="other">images/robot.png</file>
-        <file alias="del">images/Bin (empty).png</file>
-        <file alias="fo">images/fileopen.png</file>
-        <file alias="fs">images/Floppy.png</file>
-        <file alias="tb">images/textbold.png</file>
         <file alias="tc">images/textcolor.png</file>
-        <file alias="ti">images/textitalic.png</file>
-        <file alias="tu">images/textunder.png</file>
         <file alias="login">images/自动登陆.gif</file>
         <file alias="2">images/2.jpg</file>
         <file alias="4">images/4.jpg</file>
@@ -20,5 +14,13 @@
         <file alias="5">images/5.jpg</file>
         <file alias="6">images/6.jpg</file>
         <file alias="1">images/1.jpg</file>
+        <file alias="chat">images/chat.ico</file>
+        <file alias="tb">images/1168290.png</file>
+        <file alias="ts">images/1187937.png</file>
+        <file alias="ti">images/1223112.png</file>
+        <file alias="tu">images/1223113.png</file>
+        <file alias="td">images/1229409.png</file>
+        <file alias="to">images/1266646.png</file>
+        <file alias="tcs">images/1181767.png</file>
     </qresource>
 </RCC>

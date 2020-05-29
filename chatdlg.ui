@@ -436,7 +436,7 @@
        </property>
        <property name="icon">
         <iconset resource="images.qrc">
-         <normaloff>:/images/tc</normaloff>:/images/tc</iconset>
+         <normaloff>:/images/tcs</normaloff>:/images/tcs</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -465,7 +465,7 @@
        </property>
        <property name="icon">
         <iconset resource="images.qrc">
-         <normaloff>:/images/fo</normaloff>:/images/fo</iconset>
+         <normaloff>:/images/to</normaloff>:/images/to</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -494,7 +494,7 @@
        </property>
        <property name="icon">
         <iconset resource="images.qrc">
-         <normaloff>:/images/fs</normaloff>:/images/fs</iconset>
+         <normaloff>:/images/ts</normaloff>:/images/ts</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -523,7 +523,7 @@
        </property>
        <property name="icon">
         <iconset resource="images.qrc">
-         <normaloff>:/images/del</normaloff>:/images/del</iconset>
+         <normaloff>:/images/td</normaloff>:/images/td</iconset>
        </property>
        <property name="iconSize">
         <size>

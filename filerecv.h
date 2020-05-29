@@ -37,12 +37,13 @@ private:
     QHostAddress hostAddress;
     qint16 tcpPort;
 
-    qint64 TotalBytes;
-    qint64 bytesReceived;
-    qint64 bytesToReceive;
-    qint64 fileNameSize;
+    qint64 TotalBytes; // 文件总字节数
+    qint64 bytesReceived; // 已发送的字节数
+    qint64 bytesToReceive; // 尚未发送的字节数
+    qint64 fileNameSize; // 文件名字字节数
     QString fileName;
     QFile *localFile;
+    // 数据缓冲区
     QByteArray inBlock;
 
     QTime time;

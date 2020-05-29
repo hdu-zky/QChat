@@ -31,6 +31,7 @@ login::login(QWidget *parent) :
     readSettings(); //读取存储的用户名和密码
 //    readIniFile();
 //    readSetting();
+    ui->chkBox_Auto->setVisible(false);
     setWindowFlags(windowFlags()& ~Qt::WindowMaximizeButtonHint & ~Qt::WindowContextHelpButtonHint);
     connect(ui->UserName,SIGNAL(textEdited(QString)), ui->Password,SLOT(clear()));
 }
@@ -113,10 +114,12 @@ void login::changeSaved(){
 void login::autoLg(){
 //    QMessageBox::information(this,tr("提示"),tr("正在自动登陆中......"), QMessageBox::Cancel);
 
-    autoLogin *lt = new autoLogin(this);
+    autoLogin *lt = new autoLogin;
+    this->hide();
+    execQuery();
     lt->show();
     QTimer::singleShot(2500, lt, SLOT(close()));  // 这里是一个3秒定时器， 且只执行一次。
-    execQuery();
+
 //    lt->close();
 //    accept();
 //    qDebug()<<"autologin"<<endl;
@@ -157,6 +160,7 @@ void login::on_Login_Button_clicked()
     execQuery();
 }
 void login::execQuery(){
+//    accept();
     QSqlQuery query(getDB());
     QString sql = QString("select uid, userName from user where uid = '%1' and passWord = '%2'").arg(userId).arg(passWord);
     query.exec(sql);
@@ -182,9 +186,10 @@ void login::execQuery(){
         query.finish();
         query.clear();
         getDB().close();
-        QMessageBox::information(this,tr("提示"),tr("登陆成功！"), QMessageBox::Ok);
+//        QMessageBox::information(this,tr("提示"),tr("登陆成功！"), QMessageBox::Ok);
 //        saveSetting();
         accept();
+        this->close();
     }
     return;
 }

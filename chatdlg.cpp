@@ -1,6 +1,7 @@
 #include "chatdlg.h"
 #include "ui_chatdlg.h"
 #include "filetrans.h"
+
 #include "friendmanage.h"
 #include "groupmanage.h"
 
@@ -42,7 +43,8 @@ chatDlg::chatDlg(QWidget *parent) :
     server = new fileTrans(this);
     connect(server,SIGNAL(sendFileName(QString)),this,SLOT(sentFileName(QString)));
 
-    useripAddress = "127.0.0.1";
+//    useripAddress = "127.0.0.1";
+
 }
 
 chatDlg::~chatDlg()
@@ -227,6 +229,7 @@ void chatDlg::sendMessage(MessageType type, QString serverAddress){
                     QMessageBox::warning(this, QString("警告"), QString("目标ip地址为空！"),QMessageBox::Ok);
                     return;
                 }
+                qDebug()<<"address:useripAddress:fileName "<<address<<useripAddress<<fileName<<endl;
                 out << address << useripAddress << fileName<<meId;
                 break;
             }
@@ -238,25 +241,7 @@ void chatDlg::sendMessage(MessageType type, QString serverAddress){
     // QHostAddress::Broadcast是指发送数据的目的地址
     udpSocket->writeDatagram(data,data.length(),QHostAddress::Broadcast, port); //目标地址，QHostAddress::Broadcast广播发送
 }
-QString chatDlg::getUserName()
-{
-    QStringList envVariables;
-    envVariables << "USERNAME.*" << "USER.*" << "USERDOMAIN.*"
-                 << "HOSTNAME.*" << "DOMAINNAME.*";
-    QStringList environment = QProcess::systemEnvironment();
 
-    foreach (QString string, envVariables){
-        int index = environment.indexOf(QRegExp(string));
-        if (index != -1){
-            QStringList stringList = environment.at(index).split('=');
-            if (stringList.size() == 2){
-                return stringList.at(1);
-                break;
-            }
-        }
-    }
-    return NULL;
-}
 // 获取输入框的数据
 QString chatDlg::getMessage()
 {
@@ -288,6 +273,9 @@ void chatDlg::hasPendingFile(QString userName,QString serverAddress,
                 // serverAddress 发送方IP地址
                 client->setHostAddress(QHostAddress(serverAddress));
                 client->show();
+//                Server *sr = new Server(this);
+//                sr->show();
+
             }
         }else{
             sendMessage(Refuse,serverAddress);
@@ -300,6 +288,9 @@ void chatDlg::setUserInfo(QString mid, QString mname, QString uid, QString uname
     userId = uid;
     userName = uname;
     userimgId = imgId;
+    if(chatType == "1"){
+        ui->sendfile->setEnabled(false);
+    }
     QSqlQuery query(getDB());
     QString sql;
     qDebug()<<"meId:"<<meId<<"userId: "<<userId<<endl;
@@ -393,10 +384,11 @@ void chatDlg::on_send_clicked()
 // 打开文件传输窗口
 void chatDlg::on_sendfile_clicked()
 {
-//    fileTrans *ft = new fileTrans(this);
-//    ft->show();
-    server->show();
     server->initServer();
+    server->show();
+    sendMessage(FileName);
+//    Client *cl = new Client(this);
+//    cl->show();
 
 }
 void chatDlg::on_close_clicked()

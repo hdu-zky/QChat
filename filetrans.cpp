@@ -21,7 +21,7 @@ void fileTrans::initServer()
 {
     loadSize = 4*1024;
     TotalBytes = 0;
-    bytesWritten = 0;
+//    bytesWritten = 0;
     bytesToWrite = 0;
     ui->progressBar->setValue(0);
 //    ui->progressBar->->reset();

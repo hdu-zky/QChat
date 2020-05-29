@@ -231,9 +231,10 @@ void MainWindow::on_refresh_clicked()
 // 修改个人信息
 void MainWindow::updateInf(){
     updateInfo *up = new updateInfo(this);
+    qDebug()<<"MainWindow userId"<<userId<<endl;
     up->setUserId(userId);
+    up->Init();
     up->show();
-    on_refresh_clicked();
 }
 // 创建群组
 void MainWindow::createGp(){

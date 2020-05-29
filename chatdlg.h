@@ -32,11 +32,8 @@ public:
     }
 
     void setUserInfo(QString mid, QString mname, QString uid, QString uname, QString userImg);
-    QString getUserName();
     QString getMessage();
     void unreadMsg();
-//    void newParticipant(QString ipAddress, QString  recvUserId);
-//    void participantLeft(QString recvUserId);
 
 protected:
     // 发送数据信息到局域网

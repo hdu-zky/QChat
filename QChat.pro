@@ -38,7 +38,7 @@ SOURCES += \
     chatdlgstack.cpp \
     resetpwd.cpp \
     friendmanage.cpp \
-    groupmanage.cpp
+    groupmanage.cpp\
 
 HEADERS += \
         hosturl.h\
@@ -57,7 +57,7 @@ HEADERS += \
     resetpwd.h \
     openDB.h \
     friendmanage.h \
-    groupmanage.h
+    groupmanage.h\
 
 FORMS += \
         mainwindow.ui \
@@ -73,7 +73,8 @@ FORMS += \
     chatdlgstack.ui \
     resetpwd.ui \
     friendmanage.ui \
-    groupmanage.ui
+    groupmanage.ui\
 
 RESOURCES += \
     images.qrc
+RC_ICONS += chat.ico
