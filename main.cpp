@@ -22,8 +22,8 @@ int main(int argc, char *argv[])
         w.setUserInfo(lg.getUserId(), lg.getUserName());
         w.setUserIp(lg.getIPV4());
         w.refresh();
-        w.sendNewParticipant();
         w.show();
+        w.sendNewParticipant();
         int nret = a.exec();
         if (nret == 2){
             atexit(relogin);

@@ -2,6 +2,7 @@
 #define FILETRANS_H
 
 #include <QDialog>
+#include <QTcpSocket>
 #include <QTcpServer>
 #include <QFile>
 #include <QTime>

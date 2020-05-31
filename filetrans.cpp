@@ -15,7 +15,6 @@ fileTrans::fileTrans(QWidget *parent) :
     tcpPort = 6667;
     tcpServer = new QTcpServer(this);
     connect(tcpServer,SIGNAL(newConnection()),this,SLOT(sendMessage()));
-    initServer();
 }
 void fileTrans::initServer()
 {
@@ -28,7 +27,7 @@ void fileTrans::initServer()
     ui->openFile->setEnabled(true);
     ui->startSend->setEnabled(false);
 
-//    tcpServer->close();
+    tcpServer->close();
 
 }
 //
@@ -46,6 +45,7 @@ void fileTrans::sendMessage()
         return;
     }
     TotalBytes = localFile->size();
+    qDebug()<<"\nTotalBytes "<<TotalBytes<<endl;
     QDataStream sendOut(&outBlock,QIODevice::WriteOnly);
     sendOut.setVersion(QDataStream::Qt_5_5);
     time.start();
@@ -97,33 +97,6 @@ void fileTrans::refused()
     ui->startSend->setEnabled(false);
 }
 
-void fileTrans::on_startSend_clicked()
-{
-    ui->startSend->setEnabled(false);// 正在发送中，禁止开始发送按钮
-    if(!tcpServer->listen(QHostAddress::Any,tcpPort)){
-        qDebug() <<"fileTrans::on_startSend_clicked error"<< tcpServer->errorString();
-        tcpServer->close();
-        close();
-        return;
-    }
-    ui->label->setText(QString("文件正在发送中... ..."));
-    emit sendFileName(fileName);
-}
-
-//退出发送界面
-void fileTrans::on_quit_clicked()
-{
-//    if(tcpServer->isListening())
-//    {
-//        tcpServer->close();
-//        clientConnection->abort();
-//    }
-    this->close();
-}
-fileTrans::~fileTrans()
-{
-    delete ui;
-}
 // 打开本地文件
 void fileTrans::on_openFile_clicked()
 {
@@ -140,4 +113,31 @@ void fileTrans::on_openFile_clicked()
     ui->startSend->setEnabled(true);
     ui->openFile->setEnabled(false);
 }
-
+// 开始发送文件
+void fileTrans::on_startSend_clicked()
+{
+    ui->startSend->setEnabled(false);// 正在发送中，禁止开始发送按钮
+    if(!tcpServer->listen(QHostAddress::Any,tcpPort)){
+        qDebug() <<"fileTrans::on_startSend_clicked error"<< tcpServer->errorString();
+        tcpServer->close();
+        close();
+        return;
+    }
+    ui->label->setText(QString("文件正在发送中..."));
+    // 发送文件正在发送信号给chatDlg,使他广播给目的主机窗口
+    emit sendFileName(fileName);
+}
+//退出发送界面
+void fileTrans::on_quit_clicked()
+{
+//    if(tcpServer->isListening())
+//    {
+//        tcpServer->close();
+//        clientConnection->abort();
+//    }
+    this->close();
+}
+fileTrans::~fileTrans()
+{
+    delete ui;
+}

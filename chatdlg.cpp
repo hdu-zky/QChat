@@ -91,6 +91,7 @@ void chatDlg::unreadMsg(){
 // 接收udp消息
 void chatDlg::pendingDatagrams()
 {
+    qDebug()<<"pendingDatagrams"<<endl;
     while(udpSocket->hasPendingDatagrams())
     {
         QByteArray datagram;
@@ -140,24 +141,26 @@ void chatDlg::pendingDatagrams()
             break;
         }
         case NewParticipant:{
-            in >>userName >>ipAddress >> recvUserId;
-            newParticipant(ipAddress, recvUserId);
+            //<< userName<<userId<<userIp;
+            in >>userName >> recvUserId >>ipAddress;
+            newParticipant(userName, ipAddress, recvUserId);
+
             qDebug()<<"NewParticipant:"<<userName <<ipAddress<<recvUserId<<endl;
             break;
         }
         case ParticipantLeft:{
-            in >>userName >>ipAddress >> recvUserId;
-            participantLeft(recvUserId);
+            in >>userName >> recvUserId >>ipAddress;
+            participantLeft(userName, recvUserId);
             qDebug()<<"ParticipantLeft:"<<userName<<ipAddress<<recvUserId<<endl;
             break;
         }
         case FileName:{
             in >>userName >> ipAddress;
             QString clientAddress,fileName;
-            in >> clientAddress >> fileName;
+            in >> clientAddress >> fileName>>sendUserId;
             qDebug()<<"\nchatDlg::pendingDatagrams FileName: "<<"userName"<<userName<<endl;
-            qDebug()<<"ipAddress: "<<ipAddress<<"clientAddress"<<clientAddress<<"fileName"<<fileName<<endl;
-            hasPendingFile(userName,ipAddress,clientAddress,fileName);
+            qDebug()<<"ipAddress: "<<ipAddress<<"clientAddress"<<clientAddress<<"fileName"<<fileName<<sendUserId<<endl;
+            hasPendingFile(userName,ipAddress,clientAddress,fileName,sendUserId);
             break;
         }
         case Refuse:{
@@ -176,26 +179,28 @@ void chatDlg::pendingDatagrams()
     }
 }
 // 当有新用户登陆时，查看是否打开了和他的聊天界面
-void chatDlg::newParticipant(QString ipAddress, QString  recvUserId){
+void chatDlg::newParticipant(QString userName, QString ipAddress, QString  recvUserId){
     // 如果当前界面的聊天好友是新登陆了
     if(recvUserId == userId){
         // 更新他的IP地址
         useripAddress = ipAddress;
-        userstatus = "0";
+        userstatus = "1";
         // 更新与他的对话框的在线信息
         ui->lb_status->setText(QString("在线"));
+        QMessageBox::information(this,tr("提示"), QString("您的好友%1已在线！").arg(userName),QMessageBox::Ok);
         ui->lb_spoint->setStyleSheet("background-color: #92bd6c");
         ui->lb_status->setStyleSheet("color: green");
     }
 }
 // 当有用户离开时
-void chatDlg::participantLeft(QString recvUserId){
+void chatDlg::participantLeft(QString userName, QString recvUserId){
     // 如果当前界面的聊天好友离线了
     if(recvUserId == userId){
         // 更新他的在线状态
         userstatus = "0";
         // 更新与他的对话框的在线信息
         ui->lb_status->setText(QString("离线"));
+        QMessageBox::warning(this,tr("提示"), QString("您的好友%1已离线！").arg(userName),QMessageBox::Ok);
         ui->lb_spoint->setStyleSheet("background-color: #f87878");
         ui->lb_status->setStyleSheet("color: gray");
     }
@@ -226,10 +231,12 @@ void chatDlg::sendMessage(MessageType type, QString serverAddress){
             }
         case FileName:{
                 if(useripAddress.isEmpty()){
-                    QMessageBox::warning(this, QString("警告"), QString("目标ip地址为空！"),QMessageBox::Ok);
+                    QMessageBox::warning(this, QString("警告"), QString("目标好友ip地址为空！"),QMessageBox::Ok);
                     return;
                 }
-                qDebug()<<"address:useripAddress:fileName "<<address<<useripAddress<<fileName<<endl;
+
+                qDebug()<<"sendMessage fileName "<<address<<useripAddress<<fileName<<endl;
+                // address发送方IP地址，useripAddress（好友）接收方IP地址
                 out << address << useripAddress << fileName<<meId;
                 break;
             }
@@ -247,6 +254,7 @@ QString chatDlg::getMessage()
 {
     return ui->textEdit->toHtml();
 }
+// 槽函数，接收文件传输传功窗口发来的文件名后，发送udp信号
 void chatDlg::sentFileName(QString fileName)
 {
     qDebug()<<"chatDlg::sentFileName"<<fileName<<endl;
@@ -254,20 +262,23 @@ void chatDlg::sentFileName(QString fileName)
     sendMessage(FileName);
 
 }
+// 收到传输文件信号处理
 void chatDlg::hasPendingFile(QString userName,QString serverAddress,
-                            QString clientAddress,QString fileName)
+                            QString clientAddress,QString fileName, QString sendUserId)
 {
     QString ipAddress = getIP();
-    qDebug()<<"chatDlg::hasPendingFile ipAddress: "<<ipAddress<<"clientAddress"<<clientAddress<<endl;
-    if(ipAddress == clientAddress){
+    // 如果目的IP和本机IP相同且发送方用户id和当前好友id相同
+    // 说明双方正在聊天可接收文件
+    if(ipAddress == clientAddress && sendUserId == userId){
         int btn = QMessageBox::information(this,QString("提示"),
                                            QString("来自%1(%2)的文件%3,接收吗")
-                                           .arg(userName).arg(serverAddress).arg(fileName),
+                                           .arg(userName).arg(sendUserId).arg(fileName),
                                            QMessageBox::Yes,QMessageBox::No);
         if(btn == QMessageBox::Yes){
             QString name = QFileDialog::getSaveFileName(0,QString("文件保存为"),fileName);
 
             if(!name.isEmpty()){
+                qDebug()<<"hasPendingFile filename: "<<name<<endl;
                 fileRecv *client = new fileRecv(this);
                 client->setFileName(name);
                 // serverAddress 发送方IP地址
@@ -356,7 +367,7 @@ void chatDlg::on_send_clicked()
 //    QString user = QString(QString("<b style='color: darkBlue' >[%1]</b><span style='color: grey'>(<u>%2</u>)<i>%3</i></span>")
 //                           .arg(userName).arg(userId).arg(time));
 //     ui->textBrowser->setTextColor(Qt::darkBlue);
-    // 当前对话好友不在线
+    // 当前对话好友不在线,则把消息存储到服务器
     if(userstatus == '0'){
         QSqlQuery query(getDB());
         QString sql, msg = ui->textEdit->toPlainText();
@@ -384,9 +395,13 @@ void chatDlg::on_send_clicked()
 // 打开文件传输窗口
 void chatDlg::on_sendfile_clicked()
 {
+    if( userstatus =="0"){
+        QMessageBox::warning(this, QString("警告"), QString("好友不在线！无法进行文件传输"),QMessageBox::Ok);
+        return;
+    }
     server->initServer();
     server->show();
-    sendMessage(FileName);
+//    sendMessage(FileName);
 //    Client *cl = new Client(this);
 //    cl->show();
 

@@ -40,13 +40,13 @@ protected:
     void sendMessage(MessageType type,QString serverAddress="");
     // 有文件数据到达
     void hasPendingFile(QString userName,QString serverAddress,
-                        QString clientAddress,QString fileName);
+                        QString clientAddress,QString fileName, QString sendUserId);
 signals:
     void closeSignal();
 private slots:
-    // 接收父窗口chatDlgStack发过来的用户登录下线信号
-    void newParticipant(QString ipAddress, QString  recvUserId);
-    void participantLeft(QString recvUserId);
+    // 接收主窗口mainwindow广播的用户登录下线信号
+    void newParticipant(QString userName, QString ipAddress, QString  recvUserId);
+    void participantLeft(QString userName, QString recvUserId);
     // 控制发送按钮的可用
     void enableSendBtn();
     // 有数据到达时分析处理

@@ -64,11 +64,7 @@ MainWindow::MainWindow(QWidget *parent) :
     chatStack = new chatDlgStack(this);
     connect(chatStack, SIGNAL(refreshList()),this,SLOT(on_refresh_clicked()));
     // 发送新用户登录信号
-    udpSocket = new QUdpSocket(this);
     port = 45456;
-    udpSocket->bind(port,QUdpSocket::ShareAddress
-                    | QUdpSocket::ReuseAddressHint);
-
 //    dlgCount =0;
     userImgId = new QStringList;
 }
@@ -77,23 +73,22 @@ MainWindow::~MainWindow()
 {
     delete ui;
 }
+
 // 广播上线信息
 void MainWindow::sendNewParticipant(){
     QByteArray data;
-//    QDataStream out(&data,QIODevice::WriteOnly);
-    QString type ="1";
-    QString localHostName = "QHostInfo::localHostName()";
-    QString UserName = "getIP()";
-    data.append(type).append(localHostName).append(UserName);
-//    out << type << UserName << localHostName;
-    qDebug()<<"\nmainwindow userId"<< userIp << userId<<endl;
-//    out << userIp << userId;
-//    QString dat; dat.prepend(data);
-    qDebug()<<"sendNewParticipant data: "<<data<<data.length()<<endl;
+    udpSocket = new QUdpSocket(this);
+    // 当我这里添加了bind语句时，udpsocket为甚么并不正常发送数据
+    //udpSocket->bind(port,QUdpSocket::ShareAddress| QUdpSocket::ReuseAddressHint);
+    QDataStream out(&data,QIODevice::WriteOnly);
+    int type = 1;
+
+    out << type << userName<<userId<<userIp;
     qint64 res =  udpSocket->writeDatagram(data,data.length(),QHostAddress::Broadcast, port);
     if(res == -1){
-        QMessageBox::warning(this,QString("警告"),QString("广播消息失败！"),QMessageBox::Ok);
+        QMessageBox::warning(this,QString("警告"),QString("广播上线消息失败！"),QMessageBox::Ok);
     }
+    udpSocket->close();
 }
 
 void MainWindow::customMenupPop(QPoint pos){
@@ -123,7 +118,7 @@ void MainWindow::on_openDialogWindow_clicked()
 
 //        dlgCount++;
 //    }
-    qDebug()<<"on_openDialogWindow_clicked"<<endl;
+//    qDebug()<<"on_openDialogWindow_clicked"<<endl;
     if(ui->tableWidget->selectedItems().isEmpty()){
         QMessageBox::warning(0,QString("警告"),QString("你没有选择群聊或好友！"),QMessageBox::Ok);
         return;
@@ -231,7 +226,7 @@ void MainWindow::on_refresh_clicked()
 // 修改个人信息
 void MainWindow::updateInf(){
     updateInfo *up = new updateInfo(this);
-    qDebug()<<"MainWindow userId"<<userId<<endl;
+//    qDebug()<<"MainWindow userId"<<userId<<endl;
     up->setUserId(userId);
     up->Init();
     up->show();
@@ -259,15 +254,19 @@ void MainWindow::closeEvent(QCloseEvent *){
     query.finish();
     query.clear();
     getDB().close();
-    QString type = "2";
-    QString localHostName = "closeEvent";
-    QString UserName = "closeEvent";
+    // 广播用户下线信息
     QByteArray data;
-    data.append(type).append(localHostName).append(UserName);
+    // 当我这里添加了bind语句时，udpsocket为甚么并不正常发送数据
+    //udpSocket->bind(port,QUdpSocket::ShareAddress| QUdpSocket::ReuseAddressHint);
+    QDataStream out(&data,QIODevice::WriteOnly);
+    int type = 2;// 下线信号
 
+    out << type << userName<<userId<<userIp;
     qint64 res =  udpSocket->writeDatagram(data,data.length(),QHostAddress::Broadcast, port);
+//    qDebug()<<"res: "<<res<<endl;
     if(res == -1){
-        QMessageBox::warning(this,QString("警告"),QString("广播消息失败！"),QMessageBox::Ok);
+        QMessageBox::warning(this,QString("警告"),QString("广播上线消息失败！"),QMessageBox::Ok);
     }
+    udpSocket->close();
     this->close();
 }

@@ -36,7 +36,9 @@ void fileRecv::newConnect()
 {
     blockSize = 0;
     tcpClient->abort();
-    tcpClient->connectToHost(hostAddress, tcpPort);
+    qDebug()<<"fileRecv::newConnect hostAddress"<<hostAddress<<endl;
+    tcpClient->connectToHost("127.0.0.1", tcpPort);//
+    connect(tcpClient,SIGNAL(readyRead()),this,SLOT(readMessage()));
     qDebug()<<"fileRecv::newConnect hostAddress:"<<hostAddress<<endl;
     time.start();
 }

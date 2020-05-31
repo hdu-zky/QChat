@@ -50,7 +50,6 @@ private slots:
     void on_quit_clicked();
     void customMenupPop(QPoint);
     void updateGpInf();
-
 private:
     Ui::MainWindow *ui;
     QUdpSocket *udpSocket;
