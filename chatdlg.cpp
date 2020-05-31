@@ -187,7 +187,7 @@ void chatDlg::hasPendingFile(QString userName,QString serverAddress,
     // 说明双方正在聊天可接收文件
     if(ipAddress == clientAddress && sendUserId == userId){
         int btn = QMessageBox::information(this,QString("提示"),
-                                           QString("来自%1(%2)的文件%3(%),接收吗")
+                                           QString("来自%1(%2)的文件%3,接收吗")
                                            .arg(userName).arg(sendUserId).arg(fileName),
                                            QMessageBox::Yes,QMessageBox::No);
         if(btn == QMessageBox::Yes){

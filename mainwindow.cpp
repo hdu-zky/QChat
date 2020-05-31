@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "chat.h"
 #include "autoLogin.h"
 #include "login.h"
 #include "findgroup.h"
@@ -234,9 +233,9 @@ void MainWindow::updateInf(){
 // 创建群组
 void MainWindow::createGp(){
     createGroup *cp = new createGroup(this);
-    cp->setUserId(userId);
+    cp->setUserId(userId, userName);
+    connect(cp,SIGNAL(refresh()),this,SLOT(on_refresh_clicked()));
     cp->show();
-    on_refresh_clicked();
 }
 
 // 实现退出重新登录

@@ -127,11 +127,11 @@ void fileTrans::on_startSend_clicked()
 //退出发送界面
 void fileTrans::on_quit_clicked()
 {
-//    if(tcpServer->isListening())
-//    {
-//        tcpServer->close();
-//        clientConnection->abort();
-//    }
+    if(tcpServer->isListening())
+    {
+        tcpServer->close();
+        clientConnection->abort();
+    }
     this->close();
 }
 fileTrans::~fileTrans()

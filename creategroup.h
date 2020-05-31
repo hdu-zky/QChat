@@ -15,8 +15,9 @@ class createGroup : public QDialog
 public:
     explicit createGroup(QWidget *parent = 0);
     ~createGroup();
-    void setUserId(QString uId){
+    void setUserId(QString uId, QString uname){
         userId = uId;
+        userName = uname;
     }
 
 private slots:
@@ -26,10 +27,11 @@ private slots:
 
     void on_btn_chooseImg_clicked();
     void selectImgId(int id);
-
+signals:
+    void refresh();
 private:
     Ui::createGroup *ui;
-    QString userId;
+    QString userId, userName;
     int imgId;
     QString img;
 };

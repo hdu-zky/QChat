@@ -38,8 +38,8 @@ void createGroup::on_btn_create_clicked()
     QString sql, sql0;
     sql = QString("insert into groups (groupsid,creatorid,groupsname,instruct,status,createtime,headimg) values('%1','%2', '%3','%4','%5','%6','%7')")
             .arg(groupsId).arg(userId).arg(groupsName).arg(instruct).arg(1).arg(time).arg(imgId);
-    sql0 = QString("insert into ingroup (g_uid, group_id,join_timing,status,role) values('%1','%2', '%3','%4','%5')")
-            .arg(userId).arg(groupsId).arg(time).arg(1).arg(1);
+    sql0 = QString("insert into ingroup (g_uid, group_id,join_timing,status,role,userName) values('%1','%2', '%3','%4','%5', '%6')")
+            .arg(userId).arg(groupsId).arg(time).arg(1).arg(1).arg(userName);
     if(!query.exec(sql)){
         // 插入第一条语句失败
         if(!QSqlDatabase::database().commit()){
@@ -51,6 +51,7 @@ void createGroup::on_btn_create_clicked()
         // 插入第二条语句成功
         if(query.exec(sql0)){
             QMessageBox::information(this,tr("提示"),tr("创建群聊成功！"), QMessageBox::Ok);
+            emit refresh();
             accept();
         }else{
             if(!QSqlDatabase::database().commit()){
