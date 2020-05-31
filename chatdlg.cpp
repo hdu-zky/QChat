@@ -168,7 +168,7 @@ void chatDlg::pendingDatagrams()
             QString serverAddress;
             in >> serverAddress;
             QString ipAddress = getIP();
-
+            qDebug()<<"pendingDatagrams Refuse"<<ipAddress<<serverAddress<<endl;
             if(ipAddress == serverAddress)
             {
                 server->refused();
@@ -177,6 +177,41 @@ void chatDlg::pendingDatagrams()
         }
         }
     }
+}
+// 收到传输文件信号处理
+void chatDlg::hasPendingFile(QString userName,QString serverAddress,
+                            QString clientAddress,QString fileName, QString sendUserId)
+{
+    QString ipAddress = getIP();
+    // 如果目的IP和本机IP相同且发送方用户id和当前好友id相同
+    // 说明双方正在聊天可接收文件
+    if(ipAddress == clientAddress && sendUserId == userId){
+        int btn = QMessageBox::information(this,QString("提示"),
+                                           QString("来自%1(%2)的文件%3(%),接收吗")
+                                           .arg(userName).arg(sendUserId).arg(fileName),
+                                           QMessageBox::Yes,QMessageBox::No);
+        if(btn == QMessageBox::Yes){
+            QString name = QFileDialog::getSaveFileName(0,QString("文件保存为"),fileName);
+
+            if(!name.isEmpty()){
+                qDebug()<<"hasPendingFile filename: "<<name<<endl;
+                // 启动接收窗口
+                fileRecv *client = new fileRecv(this);
+                connect(client, SIGNAL(cancelRecv(QString)),this,SLOT(setRefused(QString)));
+                client->setFileName(name);
+                // serverAddress 发送方IP地址
+                client->setHostAddress(QHostAddress(serverAddress));
+                client->show();
+
+            }
+        }else{
+            sendMessage(Refuse,serverAddress);
+        }
+    }
+}
+void chatDlg::setRefused(QString serverAddress){
+    qDebug()<<"setRefused"<<endl;
+    sendMessage(Refuse, serverAddress);
 }
 // 当有新用户登陆时，查看是否打开了和他的聊天界面
 void chatDlg::newParticipant(QString userName, QString ipAddress, QString  recvUserId){
@@ -241,7 +276,7 @@ void chatDlg::sendMessage(MessageType type, QString serverAddress){
                 break;
             }
         case Refuse:{
-                out << serverAddress;
+                out <<serverAddress;
                 break;
             }
     }
@@ -253,45 +288,6 @@ void chatDlg::sendMessage(MessageType type, QString serverAddress){
 QString chatDlg::getMessage()
 {
     return ui->textEdit->toHtml();
-}
-// 槽函数，接收文件传输传功窗口发来的文件名后，发送udp信号
-void chatDlg::sentFileName(QString fileName)
-{
-    qDebug()<<"chatDlg::sentFileName"<<fileName<<endl;
-    this->fileName = fileName;
-    sendMessage(FileName);
-
-}
-// 收到传输文件信号处理
-void chatDlg::hasPendingFile(QString userName,QString serverAddress,
-                            QString clientAddress,QString fileName, QString sendUserId)
-{
-    QString ipAddress = getIP();
-    // 如果目的IP和本机IP相同且发送方用户id和当前好友id相同
-    // 说明双方正在聊天可接收文件
-    if(ipAddress == clientAddress && sendUserId == userId){
-        int btn = QMessageBox::information(this,QString("提示"),
-                                           QString("来自%1(%2)的文件%3,接收吗")
-                                           .arg(userName).arg(sendUserId).arg(fileName),
-                                           QMessageBox::Yes,QMessageBox::No);
-        if(btn == QMessageBox::Yes){
-            QString name = QFileDialog::getSaveFileName(0,QString("文件保存为"),fileName);
-
-            if(!name.isEmpty()){
-                qDebug()<<"hasPendingFile filename: "<<name<<endl;
-                fileRecv *client = new fileRecv(this);
-                client->setFileName(name);
-                // serverAddress 发送方IP地址
-                client->setHostAddress(QHostAddress(serverAddress));
-                client->show();
-//                Server *sr = new Server(this);
-//                sr->show();
-
-            }
-        }else{
-            sendMessage(Refuse,serverAddress);
-        }
-    }
 }
 void chatDlg::setUserInfo(QString mid, QString mname, QString uid, QString uname, QString imgId){
     meId = mid;
@@ -340,13 +336,27 @@ void chatDlg::setUserInfo(QString mid, QString mname, QString uid, QString uname
 }
 // 获得本机IP
 QString chatDlg::getIP(){
-    QList<QHostAddress> list = QNetworkInterface::allAddresses();
-    foreach (QHostAddress address, list){
+    //这种方法获取的是无效IP
+//    QList<QHostAddress> list = QNetworkInterface::allAddresses();
+//    foreach (QHostAddress address, list){
+//        if(address.protocol() == QAbstractSocket::IPv4Protocol){
+//            qDebug() <<"IPV4 Address: "<< address.toString();
+
+//        }
+//    }
+//    QString address = QNetworkInterface::allAddresses().first().toString();
+//    return address.toString();
+    QString localHostName = QHostInfo::localHostName();
+
+    qDebug() <<"localHostName:"<<localHostName;
+    QHostInfo info = QHostInfo::fromName(localHostName);
+    foreach(QHostAddress address,info.addresses()){
         if(address.protocol() == QAbstractSocket::IPv4Protocol){
+            qDebug() <<"IPV4 Address: "<< address.toString();
             return address.toString();
         }
     }
-    return 0;
+    return NULL;
 }
 void chatDlg::enableSendBtn(){
     if(!ui->textEdit->toPlainText().isEmpty()){
@@ -401,9 +411,14 @@ void chatDlg::on_sendfile_clicked()
     }
     server->initServer();
     server->show();
-//    sendMessage(FileName);
-//    Client *cl = new Client(this);
-//    cl->show();
+
+}
+// 槽函数，接收文件传输传功窗口发来的文件名后，发送udp信号
+void chatDlg::sentFileName(QString fileName)
+{
+    qDebug()<<"chatDlg::sentFileName"<<fileName<<endl;
+    this->fileName = fileName;
+    sendMessage(FileName);
 
 }
 void chatDlg::on_close_clicked()

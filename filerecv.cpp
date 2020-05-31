@@ -36,10 +36,11 @@ void fileRecv::newConnect()
 {
     blockSize = 0;
     tcpClient->abort();
-    qDebug()<<"fileRecv::newConnect hostAddress"<<hostAddress<<endl;
-    tcpClient->connectToHost("127.0.0.1", tcpPort);//
+    // 在这里hostAddress使用168.254这个地址会出现host unreachable错，而127.0.0.1不会
+    // 是获取IP地址出了问题
+    tcpClient->connectToHost(hostAddress.toString(), tcpPort);
     connect(tcpClient,SIGNAL(readyRead()),this,SLOT(readMessage()));
-    qDebug()<<"fileRecv::newConnect hostAddress:"<<hostAddress<<endl;
+    ui->quit->setEnabled(false);
     time.start();
 }
 // 读数据
@@ -93,10 +94,11 @@ void fileRecv::readMessage()
     if(bytesReceived == TotalBytes){
         tcpClient->close();
         ui->label->setText(QString("文件%1 传输完成").arg(fileName));
+        ui->quit->setEnabled(true);
         localFile->close();
     }
 }
-
+// 打印错误
 void fileRecv::displayError(QAbstractSocket::SocketError socketError)
 {
     switch(socketError)
@@ -105,13 +107,19 @@ void fileRecv::displayError(QAbstractSocket::SocketError socketError)
         default : qDebug() <<"fileRecv::displayError " <<tcpClient->errorString();
     }
 }
+// 退出接收窗口
 void fileRecv::on_quit_clicked()
 {
     tcpClient->abort();
     this->close();
 }
-
+// 接收途中取消接收
 void fileRecv::on_cancel_clicked()
 {
+    ui->cancel->setEnabled(false);
+    ui->quit->setEnabled(true);
     tcpClient->abort();
+    qDebug()<<hostAddress.toString()<<endl;
+    // 发送拒收信号给chatDlg广播
+    emit cancelRecv(hostAddress.toString());
 }

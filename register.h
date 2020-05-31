@@ -15,6 +15,7 @@ class Register : public QDialog
 public:
     explicit Register(QWidget *parent = 0);
     ~Register();
+    QString getIP();
 
 private slots:
 

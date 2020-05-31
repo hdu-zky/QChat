@@ -67,6 +67,7 @@ private slots:
 
     void on_checkInfo_clicked();
     void hasDel();
+    void setRefused(QString serverAddress);
 
 private:
     Ui::chatDlg *ui;

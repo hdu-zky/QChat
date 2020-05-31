@@ -29,6 +29,9 @@ private slots:
     void readMessage();
     void displayError(QAbstractSocket::SocketError);
 
+signals:
+    // 取消接收文件信号
+    void cancelRecv(QString);
 
 private:
     Ui::fileRecv *ui;

@@ -8,6 +8,7 @@
 #include <QListWidget>
 #include <QPushButton>
 #include <QVBoxLayout>
+#include <QtNetwork>
 
 Register::Register(QWidget *parent) :
     QDialog(parent),
@@ -69,8 +70,8 @@ void Register::on_btn_Register_clicked()
         dataBase.close();
         return;
     }
-    sql = QString("insert into user (uid,userName,passWord,email,tel,signtime) values('%1','%2', '%3','%4','%5','%6')")
-            .arg(uid).arg(userName).arg(MD5).arg(email).arg(tel).arg(time);
+    sql = QString("insert into user (uid,userName,passWord,email,tel,signtime,ipaddress) values('%1','%2', '%3','%4','%5','%6')")
+            .arg(uid).arg(userName).arg(MD5).arg(email).arg(tel).arg(time).arg(getIP());
     // 使数据库支持中文
     if(!query.exec(sql)){
         if(!QSqlDatabase::database().commit()){
@@ -135,3 +136,16 @@ void Register::selectImgId(int id){
     ui->lb_img->setStyleSheet(QString("border-image: url(':/images/%1')").arg(imgId));
 }
 
+QString Register::getIP(){
+    QString localHostName = QHostInfo::localHostName();
+
+    qDebug() <<"localHostName:"<<localHostName;
+    QHostInfo info = QHostInfo::fromName(localHostName);
+    foreach(QHostAddress address,info.addresses()){
+        if(address.protocol() == QAbstractSocket::IPv4Protocol){
+            qDebug() <<"IPV4 Address: "<< address.toString();
+            return address.toString();
+        }
+    }
+    return NULL;
+}

@@ -19,7 +19,7 @@
      <x>24</x>
      <y>30</y>
      <width>251</width>
-     <height>51</height>
+     <height>60</height>
     </rect>
    </property>
    <property name="maximumSize">
@@ -30,7 +30,7 @@
    </property>
    <property name="font">
     <font>
-     <pointsize>14</pointsize>
+     <pointsize>12</pointsize>
     </font>
    </property>
    <property name="text">
@@ -39,8 +39,11 @@
    <property name="alignment">
     <set>Qt::AlignCenter</set>
    </property>
+   <property name="wordWrap">
+    <bool>true</bool>
+   </property>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>20</x>

@@ -106,9 +106,6 @@ void fileTrans::on_openFile_clicked()
         return;
     }
     fileName = filePath.right(filePath.size() - filePath.lastIndexOf('/')-1);
-//    QFileInfo fileInfo = QFileInfo(filePath);
-//    fileName = fileInfo.fileName();
-//    QString absolutePath = fileInfo.absolutePath();
     ui->label->setText(QString("你已选择文件：%1").arg(fileName));
     ui->startSend->setEnabled(true);
     ui->openFile->setEnabled(false);
@@ -124,7 +121,7 @@ void fileTrans::on_startSend_clicked()
         return;
     }
     ui->label->setText(QString("文件正在发送中..."));
-    // 发送文件正在发送信号给chatDlg,使他广播给目的主机窗口
+    // 发送文件正在发送信号给chatDlg,使他广播给目的主机窗口filerecv创建tcpsocket
     emit sendFileName(fileName);
 }
 //退出发送界面

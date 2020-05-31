@@ -194,20 +194,31 @@ void login::execQuery(){
     return;
 }
 QString login::getIPV4(){
-    QString strIpAddress;
-    QList<QHostAddress> ipAddressesList = QNetworkInterface::allAddresses();
-    // 获取第一个本主机的IPv4地址
-    int nListSize = ipAddressesList.size();
-    for (int i = 0; i < nListSize; ++i)
-    {
-           if (ipAddressesList.at(i) != QHostAddress::LocalHost &&
-               ipAddressesList.at(i).toIPv4Address()) {
-               strIpAddress = ipAddressesList.at(i).toString();
-               break;
-           }
-     }
-//    qDebug()<<strIpAddress<<endl;
-    return strIpAddress;
+//    QString strIpAddress;
+//    QList<QHostAddress> ipAddressesList = QNetworkInterface::allAddresses();
+//    // 获取第一个本主机的IPv4地址
+//    int nListSize = ipAddressesList.size();
+//    for (int i = 0; i < nListSize; ++i)
+//    {
+//           if (ipAddressesList.at(i) != QHostAddress::LocalHost &&
+//               ipAddressesList.at(i).toIPv4Address()) {
+//               strIpAddress = ipAddressesList.at(i).toString();
+//               break;
+//           }
+//     }
+//    //    qDebug()<<strIpAddress<<endl;
+//    return strIpAddress;
+    QString localHostName = QHostInfo::localHostName();
+
+    qDebug() <<"localHostName:"<<localHostName;
+    QHostInfo info = QHostInfo::fromName(localHostName);
+    foreach(QHostAddress address,info.addresses()){
+        if(address.protocol() == QAbstractSocket::IPv4Protocol){
+            qDebug() <<"IPV4 Address: "<< address.toString();
+            return address.toString();
+        }
+    }
+    return NULL;
 }
 
 void login::on_Register_Button_clicked()
